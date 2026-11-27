@@ -30,3 +30,7 @@ npm run dev            # abre en http://localhost:5173
 ## Seguridad
 
 Nunca subas claves al repositorio. `.env` está en `.gitignore`. Los valores de producción se cargan en Cloudflare (Workers → alquila → Settings → Variables and Secrets).
+
+## Guías
+
+- [Configurar el ingreso con Google y por email](docs/configurar-ingreso.md)

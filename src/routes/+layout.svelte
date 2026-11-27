@@ -4,7 +4,7 @@
 	import favicon from '#lib/assets/favicon.svg';
 	import type { LayoutProps } from './$types';
 
-	let { children }: LayoutProps = $props();
+	let { children, data }: LayoutProps = $props();
 </script>
 
 <svelte:head>
@@ -20,6 +20,16 @@
 				<img src={favicon} alt="" class="h-8 w-8" />
 				Alquilá Sgo
 			</a>
+			{#if data.usuario}
+				<a href={resolve('/cuenta')} class="text-sm font-medium text-slate-700">Mi cuenta</a>
+			{:else}
+				<a
+					href={resolve('/ingresar')}
+					class="rounded-lg bg-teal-700 px-3 py-1.5 text-sm font-medium text-white"
+				>
+					Ingresar
+				</a>
+			{/if}
 		</div>
 	</header>
 
