@@ -6,19 +6,24 @@ import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
 	if (await locals.usuario()) redirect(303, destinoSeguro(url.searchParams.get('next'), '/cuenta'));
-	return { error: url.searchParams.get('error') };
+	return {
+		error: url.searchParams.get('error'),
+		next: destinoSeguro(url.searchParams.get('next'), '/cuenta')
+	};
 };
 
-function urlDeVuelta(url: URL) {
-	const next = destinoSeguro(url.searchParams.get('next'), '/cuenta');
+// El "next" viaja en un campo oculto: la URL de la acción (?/email) no conserva la consulta.
+function urlDeVuelta(url: URL, form: FormData) {
+	const next = destinoSeguro(texto(form, 'next'), '/cuenta');
 	return `${url.origin}/auth/callback?next=${encodeURIComponent(next)}`;
 }
 
 export const actions: Actions = {
-	google: async ({ locals, url }) => {
+	google: async ({ locals, url, request }) => {
+		const form = await request.formData();
 		const { data, error } = await locals.supabase.auth.signInWithOAuth({
 			provider: 'google',
-			options: { redirectTo: urlDeVuelta(url) }
+			options: { redirectTo: urlDeVuelta(url, form) }
 		});
 		if (error || !data.url)
 			return fail(500, { mensaje: 'No pudimos conectar con Google. Probá de nuevo.' });
@@ -34,7 +39,7 @@ export const actions: Actions = {
 		}
 		const { error } = await locals.supabase.auth.signInWithOtp({
 			email,
-			options: { emailRedirectTo: urlDeVuelta(url) }
+			options: { emailRedirectTo: urlDeVuelta(url, form) }
 		});
 		if (error) {
 			return fail(error.status === 429 ? 429 : 500, {

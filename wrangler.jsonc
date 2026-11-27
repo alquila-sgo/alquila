@@ -8,6 +8,7 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
+	"r2_buckets": [{ "binding": "FOTOS", "bucket_name": "alquila-fotos" }],
 	"workers_dev": true,
 	"preview_urls": true
 }
