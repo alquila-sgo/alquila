@@ -27,6 +27,7 @@
 		</p>
 	{:else}
 		<form method="POST" action="?/google">
+			<input type="hidden" name="next" value={data.next} />
 			<button
 				class="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-300 bg-white px-4 py-3 font-medium hover:bg-slate-50"
 			>
@@ -67,6 +68,7 @@
 				};
 			}}
 		>
+			<input type="hidden" name="next" value={data.next} />
 			<label class="block space-y-1">
 				<span class="text-sm font-medium">Email</span>
 				<input

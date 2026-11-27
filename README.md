@@ -17,6 +17,16 @@ cp .env.example .env   # y completá los valores
 npm run dev            # abre en http://localhost:5173
 ```
 
+## Base de datos local (opcional)
+
+Con [Docker](https://www.docker.com) instalado podés levantar un Supabase local con las tablas ya creadas:
+
+```sh
+npx supabase start -x realtime,storage-api,imgproxy,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+```
+
+Te muestra una `API_URL` y una `PUBLISHABLE_KEY` para tu `.env`. Los emails de ingreso llegan a http://127.0.0.1:54324.
+
 ## Comandos
 
 | Comando                           | Para qué                                           |

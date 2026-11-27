@@ -21,7 +21,10 @@
 				Alquilá Sgo
 			</a>
 			{#if data.usuario}
-				<a href={resolve('/cuenta')} class="text-sm font-medium text-slate-700">Mi cuenta</a>
+				<nav class="flex items-center gap-4 text-sm font-medium text-slate-700">
+					<a href={resolve('/mis-avisos')}>Mis avisos</a>
+					<a href={resolve('/cuenta')}>Mi cuenta</a>
+				</nav>
 			{:else}
 				<a
 					href={resolve('/ingresar')}
