@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	aviso.fotos.sort((a, b) => a.orden - b.orden);
 	// ?paso=N abre solo ese paso del asistente; sin él se ve el aviso con un lápiz en cada parte.
 	const n = Number(url.searchParams.get('paso'));
-	const paso = url.searchParams.has('paso') && Number.isInteger(n) && n >= 0 && n <= 12 ? n : null;
+	const paso = url.searchParams.has('paso') && Number.isInteger(n) && n >= 0 && n <= 10 ? n : null;
 	return {
 		id: params.id,
 		aviso,

@@ -4,13 +4,10 @@
 	import MapaPin from './MapaPin.svelte';
 	import Contador from './pasos/Contador.svelte';
 	import PantallaPasos from './pasos/PantallaPasos.svelte';
-	import Personas from './Personas.svelte';
 	import {
 		AMUEBLADO,
 		formatearMiles,
 		GARANTIAS,
-		CONDICIONES,
-		SI_NO,
 		SERVICIOS,
 		TIPOS_PROPIEDAD,
 		type Localidad,
@@ -114,14 +111,6 @@
 				v.tipo_propiedad === 'otro' && v.tipo_otro.trim().length < 2 ? 'Escribí qué alquilás.' : ''
 		},
 		{
-			titulo: '¿Cuántas personas como máximo?',
-			campos: ['max_adultos', 'max_ninos'],
-			chequeo: () =>
-				v.sin_limite_personas || Number(v.max_adultos) >= 1
-					? ''
-					: 'Indicá cuántos adultos o elegí "Sin límite de personas".'
-		},
-		{
 			titulo: '¿En qué localidad está?',
 			campos: ['localidad_id', 'localidad_otra', 'barrio'],
 			chequeo: () =>
@@ -172,14 +161,8 @@
 						: ''
 		},
 		{
-			titulo: 'Condiciones',
-			ayuda: 'Ninguna es obligatoria. Tocá de nuevo para dejarla sin responder.',
-			campos: ['mascotas', 'estudiantes', 'fumadores', 'requisitos'],
-			chequeo: () => ''
-		},
-		{
 			titulo: '¿Qué pedís para alquilar?',
-			campos: ['meses_deposito'],
+			campos: ['meses_deposito', 'requisitos'],
 			chequeo: () => ''
 		},
 		{
@@ -330,45 +313,8 @@
 			{/if}
 		</div>
 
-		<!-- 2. Máximo de personas -->
+		<!-- 2. Localidad -->
 		<div hidden={paso !== 1} class="space-y-4">
-			<label class={opcion}>
-				<input
-					type="checkbox"
-					name="sin_limite_personas"
-					bind:checked={v.sin_limite_personas}
-					class="h-5 w-5"
-				/>
-				Sin límite de personas
-			</label>
-			{#if !v.sin_limite_personas}
-				<div class="divide-y divide-slate-200">
-					<Contador
-						nombre="max_adultos"
-						etiqueta="Adultos"
-						bind:valor={v.max_adultos}
-						min={1}
-						inicio={2}
-					/>
-					<Contador nombre="max_ninos" etiqueta="Niños" bind:valor={v.max_ninos} max={20} />
-				</div>
-			{/if}
-			<div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-				<p class="mb-2 text-xs font-bold tracking-wider text-slate-500 uppercase">Así se ve</p>
-				{#if v.sin_limite_personas || Number(v.max_adultos) >= 1}
-					<Personas
-						adultos={Number(v.max_adultos)}
-						ninos={Number(v.max_ninos) || 0}
-						sinLimite={v.sin_limite_personas}
-					/>
-				{:else}
-					<p class="text-sm text-slate-500">Tocá + en Adultos.</p>
-				{/if}
-			</div>
-		</div>
-
-		<!-- 3. Localidad -->
-		<div hidden={paso !== 2} class="space-y-4">
 			<div class="grid grid-cols-2 gap-2.5">
 				{#each [...principales, { id: 'otro', texto: 'Otra' }] as p (p.id)}
 					<label
@@ -417,15 +363,15 @@
 			</label>
 		</div>
 
-		<!-- 4. Mapa (se monta solo al llegar, para que tome bien el tamaño) -->
-		{#if paso === 3}
+		<!-- 3. Mapa (se monta solo al llegar, para que tome bien el tamaño) -->
+		{#if paso === 2}
 			<MapaPin bind:lat={v.lat} bind:lng={v.lng} alto="min-h-0 flex-1" />
 		{/if}
 		<input type="hidden" name="lat" value={v.lat} />
 		<input type="hidden" name="lng" value={v.lng} />
 
-		<!-- 5. Privacidad -->
-		<div hidden={paso !== 4} class="space-y-3">
+		<!-- 4. Privacidad -->
+		<div hidden={paso !== 3} class="space-y-3">
 			<label class={opcion}>
 				<input type="radio" bind:group={v.mostrar_exacta} value={false} class="h-5 w-5" />
 				<span>
@@ -444,8 +390,8 @@
 			<input type="hidden" name="direccion" value={v.direccion} />
 		</div>
 
-		<!-- 6. Ambientes -->
-		<div hidden={paso !== 5} class="divide-y divide-slate-200">
+		<!-- 5. Ambientes -->
+		<div hidden={paso !== 4} class="divide-y divide-slate-200">
 			<!-- Monoambiente o habitación: solo se pregunta la superficie. -->
 			{#if esMono}
 				<input type="hidden" name="cocina" value="0" />
@@ -478,8 +424,8 @@
 			/>
 		</div>
 
-		<!-- 7. Comodidades -->
-		<div hidden={paso !== 6} class="space-y-4">
+		<!-- 6. Comodidades -->
+		<div hidden={paso !== 5} class="space-y-4">
 			<div class="flex flex-wrap content-start gap-2.5">
 				{#each SERVICIOS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -522,8 +468,8 @@
 			</fieldset>
 		</div>
 
-		<!-- 8. Precio -->
-		<div hidden={paso !== 7} class="space-y-5">
+		<!-- 7. Precio -->
+		<div hidden={paso !== 6} class="space-y-5">
 			<div class="flex rounded-2xl bg-slate-200/70 p-1 font-semibold">
 				{#each [['ARS', '$ Pesos'], ['USD', 'US$ Dólares']] as [valor, texto] (valor)}
 					<label
@@ -562,8 +508,8 @@
 			</label>
 		</div>
 
-		<!-- 9. Expensas y ajuste -->
-		<div hidden={paso !== 8} class="space-y-5">
+		<!-- 8. Expensas y ajuste -->
+		<div hidden={paso !== 7} class="space-y-5">
 			<p class="etiqueta">¿Cobrás expensas?</p>
 			<div class="grid grid-cols-2 gap-2.5">
 				{#each [['si', 'Sí'], ['no', 'No']] as [valor, texto] (valor)}
@@ -601,45 +547,8 @@
 			{/if}
 		</div>
 
-		<!-- 10. Condiciones -->
-		<div hidden={paso !== 9} class="space-y-5">
-			{#each CONDICIONES as [campo, pregunta] (campo)}
-				<div class="flex items-center justify-between gap-3">
-					<span class="font-semibold">{pregunta}</span>
-					<div class="flex gap-2">
-						{#each SI_NO as [valor, texto] (valor)}
-							<!-- Tocar la opción elegida la desmarca: queda sin responder. -->
-							<button
-								type="button"
-								aria-pressed={v[campo] === valor}
-								class="rounded-full border-2 px-4 py-2 text-sm font-semibold transition {v[
-									campo
-								] === valor
-									? 'border-marca-600 bg-marca-600 text-white'
-									: 'border-slate-300 bg-white text-slate-700'}"
-								onclick={() => (v[campo] = v[campo] === valor ? '' : valor)}
-							>
-								{texto}
-							</button>
-						{/each}
-					</div>
-					<input type="hidden" name={campo} value={v[campo]} />
-				</div>
-			{/each}
-			<label class="block space-y-2">
-				<span class="etiqueta">Otros requisitos</span>
-				<input
-					name="requisitos"
-					bind:value={v.requisitos}
-					maxlength="500"
-					placeholder="Ej: no se aceptan visitas"
-					class="campo py-3"
-				/>
-			</label>
-		</div>
-
-		<!-- 11. Requisitos -->
-		<div hidden={paso !== 10} class="space-y-3">
+		<!-- 9. Requisitos -->
+		<div hidden={paso !== 8} class="space-y-3">
 			<div class="flex flex-wrap gap-2">
 				{#each GARANTIAS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -658,12 +567,21 @@
 				etiqueta="Meses de depósito"
 				bind:valor={v.meses_deposito}
 				max={12}
-				opcional
 			/>
+			<label class="block space-y-2">
+				<span class="etiqueta">Otros requisitos</span>
+				<input
+					name="requisitos"
+					bind:value={v.requisitos}
+					maxlength="500"
+					placeholder="Ej: referencias del alquiler anterior"
+					class="campo py-3"
+				/>
+			</label>
 		</div>
 
-		<!-- 12. Título y descripción -->
-		<div hidden={paso !== 11} class="flex min-h-0 flex-1 flex-col gap-4">
+		<!-- 10. Título y descripción -->
+		<div hidden={paso !== 9} class="flex min-h-0 flex-1 flex-col gap-4">
 			<input
 				name="titulo"
 				bind:value={v.titulo}
@@ -687,8 +605,8 @@
 			</div>
 		</div>
 
-		<!-- 13. Contacto -->
-		<div hidden={paso !== 12} class="space-y-3">
+		<!-- 11. Contacto -->
+		<div hidden={paso !== 10} class="space-y-3">
 			<label class={opcion}>
 				<input
 					type="checkbox"

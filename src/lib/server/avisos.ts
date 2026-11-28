@@ -1,10 +1,8 @@
 import {
 	AMUEBLADO,
 	GARANTIAS,
-	CONDICIONES,
 	LIMITES_PROVINCIA,
 	montoATexto,
-	SI_NO,
 	SERVICIOS,
 	TIPOS_PROPIEDAD,
 	type ValoresAviso
@@ -138,17 +136,7 @@ export function validarAviso(
 	const superficie = entero(v.superficie_m2, 1, 100000);
 	if (superficie === null) e.superficie_m2 = 'Número entero de m².';
 
-	for (const [c] of CONDICIONES) {
-		if (v[c] && !valoresDe(SI_NO).includes(v[c])) e[c] = 'Opción inválida.';
-	}
 	if (v.amueblado && !valoresDe(AMUEBLADO).includes(v.amueblado)) e.amueblado = 'Opción inválida.';
-	// Máximo de personas: o sin límite, o al menos 1 adulto (niños opcional, vacío = 0).
-	const maxAdultos = v.sin_limite_personas ? undefined : entero(v.max_adultos, 1, 20);
-	const maxNinos = v.sin_limite_personas ? undefined : entero(v.max_ninos, 0, 20);
-	if (!v.sin_limite_personas && !maxAdultos) {
-		e.max_adultos = 'Indicá cuántos adultos o marcá "Sin límite de personas".';
-	}
-	if (maxNinos === null) e.max_ninos = 'Entre 0 y 20.';
 	const meses = entero(v.meses_deposito, 0, 12);
 	if (meses === null) e.meses_deposito = 'Entre 0 y 12.';
 	if (v.otros_servicios.length > 200) e.otros_servicios = 'Máximo 200 caracteres.';
@@ -203,12 +191,6 @@ export function validarAviso(
 				dormitorios,
 				banos: banos ?? null,
 				superficie_m2: superficie ?? null,
-				mascotas: v.mascotas || null,
-				estudiantes: v.estudiantes || null,
-				max_adultos: v.sin_limite_personas ? null : maxAdultos,
-				max_ninos: v.sin_limite_personas ? null : (maxNinos ?? 0),
-				sin_limite_personas: v.sin_limite_personas,
-				fumadores: v.fumadores || null,
 				amueblado: v.amueblado || null,
 				garantias: v.garantias,
 				meses_deposito: meses ?? null,
@@ -264,7 +246,7 @@ export function filaAValores(
 		fumadores: a.fumadores === 'consultar' ? '' : s(a.fumadores),
 		amueblado: s(a.amueblado),
 		garantias: Array.isArray(a.garantias) ? (a.garantias as string[]) : [],
-		meses_deposito: s(a.meses_deposito),
+		meses_deposito: s(a.meses_deposito) || '0',
 		requisitos: s(a.requisitos),
 		disponible_desde: s(a.disponible_desde),
 		servicios: valoresDe(SERVICIOS).filter((x) => a[x] === true),

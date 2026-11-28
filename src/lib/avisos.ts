@@ -131,7 +131,7 @@ export const VALORES_VACIOS: ValoresAviso = {
 	sin_limite_personas: false,
 	amueblado: 'no',
 	garantias: [],
-	meses_deposito: '',
+	meses_deposito: '0',
 	requisitos: '',
 	disponible_desde: '',
 	servicios: [],
