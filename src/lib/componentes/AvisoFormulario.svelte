@@ -22,7 +22,8 @@
 		localidades,
 		textoBoton,
 		cerrarHref,
-		totalPasos
+		totalPasos,
+		soloPaso
 	}: {
 		inicial: ValoresAviso;
 		errores?: Record<string, string>;
@@ -32,6 +33,8 @@
 		cerrarHref: string;
 		/** Total que se muestra en la barra (por ejemplo, +1 si después vienen las fotos). */
 		totalPasos?: number;
+		/** Para editar una sola parte: muestra solo ese paso y guarda desde ahí. */
+		soloPaso?: number;
 	} = $props();
 
 	// Copia editable del formulario (se reinicia si el servidor devuelve otros valores).
@@ -94,7 +97,7 @@
 		untrack(() => (cobra = sin ? 'no' : monto ? 'si' : ''));
 	});
 
-	let paso = $state(0);
+	let paso = $state(untrack(() => soloPaso ?? 0));
 	let aviso = $state('');
 	let enviando = $state(false);
 
@@ -174,7 +177,7 @@
 				v.contacto_whatsapp || v.contacto_formulario ? '' : 'Elegí al menos una opción.'
 		}
 	];
-	const ultimo = PASOS.length - 1;
+	const ultimo = $derived(soloPaso ?? PASOS.length - 1);
 	const total = $derived(totalPasos ?? PASOS.length);
 	const actual = $derived(PASOS[paso]);
 
@@ -249,10 +252,11 @@
 	<PantallaPasos
 		paso={paso + 1}
 		{total}
+		sinProgreso={soloPaso !== undefined}
 		titulo={actual.titulo}
 		ayuda={actual.ayuda}
 		{cerrarHref}
-		onatras={paso > 0 ? atras : undefined}
+		onatras={paso > 0 && soloPaso === undefined ? atras : undefined}
 	>
 		<!-- 1. Tipo -->
 		<div hidden={paso !== 0} class="grid grid-cols-2 gap-3">
