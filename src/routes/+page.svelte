@@ -26,7 +26,10 @@
 	<div
 		class="relative mx-auto grid min-h-0 w-full max-w-5xl flex-1 content-center items-center gap-5 px-4 pt-6 pb-20 md:grid-cols-2 md:gap-6"
 	>
-		<div class="space-y-4 text-center md:text-left">
+		<!-- Texto decorativo: no se selecciona ni reacciona al tocarlo. -->
+		<div
+			class="pointer-events-none space-y-4 text-center select-none [-webkit-tap-highlight-color:transparent] [-webkit-touch-callout:none] md:text-left"
+		>
 			<h1 class="text-4xl leading-[1.05] font-extrabold sm:text-5xl">
 				Alquilá en <span class="text-sol-400">Santiago</span>.
 			</h1>

@@ -1,5 +1,8 @@
 // Opciones y textos compartidos entre el servidor y las páginas.
 
+/** Largo máximo del título del aviso. */
+export const MAX_TITULO = 30;
+
 export const TIPOS_PROPIEDAD = [
 	['departamento', 'Departamento'],
 	['casa', 'Casa'],

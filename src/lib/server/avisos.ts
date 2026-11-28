@@ -1,6 +1,7 @@
 import {
 	AMUEBLADO,
 	GARANTIAS,
+	MAX_TITULO,
 	LIMITES_PROVINCIA,
 	montoATexto,
 	SERVICIOS,
@@ -57,7 +58,8 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		lat: texto(f, 'lat'),
 		lng: texto(f, 'lng'),
 		direccion: texto(f, 'direccion'),
-		mostrar_exacta: marcado('mostrar_exacta')
+		// Siempre se muestra la zona aproximada (unos 300 m).
+		mostrar_exacta: false
 	};
 }
 
@@ -88,7 +90,7 @@ export function validarAviso(
 	const e: Record<string, string> = {};
 
 	if (!v.titulo) e.titulo = 'Escribí un título.';
-	else if (v.titulo.length > 200) e.titulo = 'Máximo 200 caracteres.';
+	else if (v.titulo.length > MAX_TITULO) e.titulo = `Máximo ${MAX_TITULO} caracteres.`;
 	// 'duplex' ya no se ofrece, pero los avisos viejos lo pueden tener.
 	if (![...valoresDe(TIPOS_PROPIEDAD), 'duplex'].includes(v.tipo_propiedad))
 		e.tipo_propiedad = 'Elegí un tipo.';

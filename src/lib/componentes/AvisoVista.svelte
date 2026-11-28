@@ -19,7 +19,6 @@
 		| 'tipo'
 		| 'localidad'
 		| 'mapa'
-		| 'privacidad'
 		| 'ambientes'
 		| 'servicios'
 		| 'precio'
@@ -317,16 +316,6 @@
 					alto="h-60"
 				/>
 			</div>
-			{#if editando}
-				<div class="flex items-center justify-between gap-3 text-sm">
-					<p>
-						Se muestra: <strong>
-							{a.ubicacion_exacta ? 'el lugar exacto' : 'una zona aproximada'}
-						</strong>
-					</p>
-					{@render lapizDe('privacidad', 'qué se muestra del lugar')}
-				</div>
-			{/if}
 		</section>
 	{:else if editando}
 		<section class="tarjeta flex items-center justify-between gap-3 text-sm">

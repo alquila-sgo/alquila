@@ -10,6 +10,7 @@
 		AMUEBLADO,
 		formatearMiles,
 		GARANTIAS,
+		MAX_TITULO,
 		SERVICIOS,
 		TIPOS_PROPIEDAD,
 		type Localidad,
@@ -98,7 +99,7 @@
 		untrack(() => (cobra = sin ? 'no' : monto ? 'si' : ''));
 	});
 
-	// Monoambiente y habitación: en el paso 5 solo se pregunta la superficie.
+	// Monoambiente y habitación: en el paso de ambientes solo se pregunta la superficie.
 	const esMono = $derived(['monoambiente', 'habitacion'].includes(v.tipo_propiedad));
 	let paso = $state(untrack(() => soloPaso ?? 0));
 	let aviso = $state('');
@@ -127,13 +128,8 @@
 		{
 			titulo: 'Marcá el lugar en el mapa',
 			ayuda: 'Tocá el mapa o usá tu ubicación. Podés arrastrar el pin.',
-			campos: ['ubicacion'],
+			campos: ['ubicacion', 'direccion'],
 			chequeo: () => (v.lat && v.lng ? '' : 'Tocá el mapa para poner el pin.')
-		},
-		{
-			titulo: '¿Qué ven los interesados?',
-			campos: ['direccion'],
-			chequeo: () => ''
 		},
 		{
 			titulo: '¿Cómo es por dentro?',
@@ -187,11 +183,11 @@
 	// llegar a ese paso, mientras la persona no lo haya cambiado a mano.
 	let tituloEditado = $state(untrack(() => !!inicial.titulo));
 	const tituloSugerido = $derived.by(() => {
-		// Abreviado: "Depto., 2 dorm, ~30 m²" o "Monoamb, ~25 m²".
+		// Abreviado: "Depto, 2 dorm, ~30 m²" o "Monoamb, ~25 m²".
 		const nombre = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
 		const tipo =
 			v.tipo_propiedad === 'departamento'
-				? 'Depto.'
+				? 'Depto'
 				: v.tipo_propiedad === 'monoambiente'
 					? 'Monoamb'
 					: v.tipo_propiedad === 'otro' && v.tipo_otro.trim()
@@ -199,9 +195,12 @@
 						: nombre;
 		const d = Number(v.dormitorios);
 		const m2 = Number(v.superficie_m2);
-		return [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : '']
-			.filter(Boolean)
-			.join(', ');
+		const partes = [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : ''].filter(
+			Boolean
+		);
+		// El título tiene un máximo de 30 caracteres: se sacan partes del final hasta que entre.
+		while (partes.length > 1 && partes.join(', ').length > MAX_TITULO) partes.pop();
+		return partes.join(', ').slice(0, MAX_TITULO);
 	});
 	$effect(() => {
 		if (actual.campos.includes('titulo') && !tituloEditado) v.titulo = tituloSugerido;
@@ -383,28 +382,10 @@
 		<input type="hidden" name="lat" value={v.lat} />
 		<input type="hidden" name="lng" value={v.lng} />
 
-		<!-- 4. Privacidad -->
-		<div hidden={paso !== 3} class="space-y-3">
-			<label class={opcion}>
-				<input type="radio" bind:group={v.mostrar_exacta} value={false} class="h-5 w-5" />
-				<span>
-					Una zona aproximada
-					<span class="block text-sm font-normal text-slate-600">Recomendado. Unos 300 m.</span>
-				</span>
-			</label>
-			<label class={opcion}>
-				<input type="radio" bind:group={v.mostrar_exacta} value={true} class="h-5 w-5" />
-				<span>
-					El lugar exacto
-					<span class="block text-sm font-normal text-slate-600">Con el pin donde lo pusiste.</span>
-				</span>
-			</label>
-			{#if v.mostrar_exacta}<input type="hidden" name="mostrar_exacta" value="on" />{/if}
-			<input type="hidden" name="direccion" value={v.direccion} />
-		</div>
+		<input type="hidden" name="direccion" value={v.direccion} />
 
 		<!-- 5. Ambientes -->
-		<div hidden={paso !== 4} class="divide-y divide-slate-200">
+		<div hidden={paso !== 3} class="divide-y divide-slate-200">
 			<!-- Monoambiente o habitación: solo se pregunta la superficie. -->
 			{#if esMono}
 				<input type="hidden" name="cocina" value="0" />
@@ -438,7 +419,7 @@
 		</div>
 
 		<!-- 6. Comodidades -->
-		<div hidden={paso !== 5} class="space-y-4">
+		<div hidden={paso !== 4} class="space-y-4">
 			<div class="flex flex-wrap content-start gap-2.5">
 				{#each SERVICIOS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -482,7 +463,7 @@
 		</div>
 
 		<!-- 7. Precio -->
-		<div hidden={paso !== 6} class="space-y-5">
+		<div hidden={paso !== 5} class="space-y-5">
 			<div class="flex rounded-2xl bg-slate-200/70 p-1 font-semibold">
 				{#each [['ARS', '$ Pesos'], ['USD', 'US$ Dólares']] as [valor, texto] (valor)}
 					<label
@@ -522,7 +503,7 @@
 		</div>
 
 		<!-- 8. Expensas y ajuste -->
-		<div hidden={paso !== 7} class="space-y-5">
+		<div hidden={paso !== 6} class="space-y-5">
 			<p class="etiqueta">¿Cobrás expensas?</p>
 			<div class="grid grid-cols-2 gap-2.5">
 				{#each [['si', 'Sí'], ['no', 'No']] as [valor, texto] (valor)}
@@ -561,7 +542,7 @@
 		</div>
 
 		<!-- 9. Requisitos -->
-		<div hidden={paso !== 8} class="space-y-3">
+		<div hidden={paso !== 7} class="space-y-3">
 			<div class="flex flex-wrap gap-2">
 				{#each GARANTIAS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -588,16 +569,21 @@
 		</div>
 
 		<!-- 10. Título y descripción -->
-		<div hidden={paso !== 9} class="flex min-h-0 flex-1 flex-col gap-4">
-			<input
-				name="titulo"
-				bind:value={v.titulo}
-				oninput={() => (tituloEditado = true)}
-				maxlength="200"
-				placeholder="Ej: Casa, 3 dormitorios"
-				aria-label="Título del aviso"
-				class="campo py-3.5 text-lg font-semibold"
-			/>
+		<div hidden={paso !== 8} class="flex min-h-0 flex-1 flex-col gap-4">
+			<div class="relative">
+				<input
+					name="titulo"
+					bind:value={v.titulo}
+					oninput={() => (tituloEditado = true)}
+					maxlength={MAX_TITULO}
+					placeholder="Ej: Casa, 3 dormitorios"
+					aria-label="Título del aviso"
+					class="campo py-3.5 pr-14 text-lg font-semibold"
+				/>
+				<span class="absolute top-1/2 right-3 -translate-y-1/2 text-xs text-slate-400">
+					{v.titulo.length}/{MAX_TITULO}
+				</span>
+			</div>
 			<div class="relative flex min-h-0 flex-1 flex-col">
 				<textarea
 					name="descripcion"
@@ -613,7 +599,7 @@
 		</div>
 
 		<!-- 11. Contacto -->
-		<div hidden={paso !== 10} class="space-y-3">
+		<div hidden={paso !== 9} class="space-y-3">
 			<label class={opcion}>
 				<input
 					type="checkbox"
