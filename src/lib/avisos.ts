@@ -65,6 +65,7 @@ export const MAX_FOTOS = 15;
 export interface ValoresAviso {
 	titulo: string;
 	tipo_propiedad: string;
+	tipo_otro: string;
 	localidad_id: string;
 	localidad_otra: string;
 	barrio: string;
@@ -105,6 +106,7 @@ export interface ValoresAviso {
 export const VALORES_VACIOS: ValoresAviso = {
 	titulo: '',
 	tipo_propiedad: 'departamento',
+	tipo_otro: '',
 	localidad_id: '',
 	localidad_otra: '',
 	barrio: '',
@@ -175,6 +177,7 @@ export interface AvisoPublico {
 	vence_el: string | null;
 	titulo: string;
 	tipo_propiedad: string;
+	tipo_otro: string | null;
 	localidad_otra: string | null;
 	barrio: string | null;
 	descripcion: string | null;

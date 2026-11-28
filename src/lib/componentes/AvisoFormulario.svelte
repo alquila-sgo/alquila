@@ -107,7 +107,12 @@
 
 	/** Cada paso: título, ayuda, campos del servidor que le corresponden y chequeo propio. */
 	const PASOS: { titulo: string; ayuda?: string; campos: string[]; chequeo: () => string }[] = [
-		{ titulo: '¿Qué vas a alquilar?', campos: ['tipo_propiedad'], chequeo: () => '' },
+		{
+			titulo: '¿Qué vas a alquilar?',
+			campos: ['tipo_propiedad'],
+			chequeo: () =>
+				v.tipo_propiedad === 'otro' && v.tipo_otro.trim().length < 2 ? 'Escribí qué alquilás.' : ''
+		},
 		{
 			titulo: '¿Cuántas personas como máximo?',
 			campos: ['max_adultos', 'max_ninos'],
@@ -199,7 +204,12 @@
 	const tituloSugerido = $derived.by(() => {
 		// Abreviado: "Depto, 2 dorm, ~30 m²".
 		const nombre = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
-		const tipo = v.tipo_propiedad === 'departamento' ? 'Depto' : nombre;
+		const tipo =
+			v.tipo_propiedad === 'departamento'
+				? 'Depto'
+				: v.tipo_propiedad === 'otro' && v.tipo_otro.trim()
+					? v.tipo_otro.trim()
+					: nombre;
 		const d = Number(v.dormitorios);
 		const m2 = Number(v.superficie_m2);
 		return [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : '']
@@ -275,33 +285,47 @@
 		onatras={paso > 0 && soloPaso === undefined ? atras : undefined}
 	>
 		<!-- 1. Tipo -->
-		<div hidden={paso !== 0} class="grid grid-cols-2 gap-3">
-			{#each TIPOS_PROPIEDAD as [valor, texto] (valor)}
-				<label
-					class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white py-5 font-bold transition last:col-span-2 last:flex-row last:py-4 has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50 has-[:checked]:text-marca-800"
-				>
-					<input
-						type="radio"
-						name="tipo_propiedad"
-						value={valor}
-						bind:group={v.tipo_propiedad}
-						class="sr-only"
-					/>
-					<svg
-						viewBox="0 0 24 24"
-						class="h-9 w-9 text-marca-700"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="1.7"
-						stroke-linecap="round"
-						stroke-linejoin="round"
-						aria-hidden="true"
+		<div hidden={paso !== 0} class="space-y-4">
+			<div class="grid grid-cols-2 gap-3">
+				{#each TIPOS_PROPIEDAD as [valor, texto] (valor)}
+					<label
+						class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-slate-200 bg-white py-5 font-bold transition last:col-span-2 last:flex-row last:py-4 has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50 has-[:checked]:text-marca-800"
 					>
-						<path d={ICONOS[valor]} />
-					</svg>
-					{texto}
+						<input
+							type="radio"
+							name="tipo_propiedad"
+							value={valor}
+							bind:group={v.tipo_propiedad}
+							class="sr-only"
+						/>
+						<svg
+							viewBox="0 0 24 24"
+							class="h-9 w-9 text-marca-700"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.7"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d={ICONOS[valor]} />
+						</svg>
+						{texto}
+					</label>
+				{/each}
+			</div>
+			{#if v.tipo_propiedad === 'otro'}
+				<label class="block space-y-2">
+					<span class="etiqueta">¿Qué alquilás?</span>
+					<input
+						name="tipo_otro"
+						bind:value={v.tipo_otro}
+						maxlength="60"
+						placeholder="Ej: dúplex, cabaña"
+						class="campo py-3.5 text-lg"
+					/>
 				</label>
-			{/each}
+			{/if}
 		</div>
 
 		<!-- 2. Máximo de personas -->
@@ -606,7 +630,7 @@
 					name="requisitos"
 					bind:value={v.requisitos}
 					maxlength="500"
-					placeholder="Ej: referencias laborales"
+					placeholder="Ej: no se aceptan visitas"
 					class="campo py-3"
 				/>
 			</label>
