@@ -50,11 +50,13 @@
 	// Cuadro destacado: número grande + nombre.
 	const ambientes = $derived(
 		[
-			{ n: a.ambientes, uno: 'Ambiente', varios: 'Ambientes' },
-			{ n: a.dormitorios, uno: 'Dormitorio', varios: 'Dormitorios' },
-			{ n: a.banos, uno: 'Baño', varios: 'Baños' }
+			{ n: a.cocina, uno: 'Cocina', varios: 'Cocinas' },
+			{ n: a.cocina_comedor, uno: 'Cocina-comedor', varios: 'Cocinas-comedor' },
+			{ n: a.comedor, uno: 'Comedor', varios: 'Comedores' },
+			{ n: a.banos, uno: 'Baño', varios: 'Baños' },
+			{ n: a.dormitorios, uno: 'Dormitorio', varios: 'Dormitorios' }
 		]
-			.filter((x): x is { n: number; uno: string; varios: string } => x.n != null)
+			.filter((x): x is { n: number; uno: string; varios: string } => !!x.n)
 			.map((x) => ({ n: String(x.n), texto: x.n === 1 ? x.uno : x.varios }))
 	);
 	const servicios = $derived(
@@ -160,7 +162,7 @@
 		</div>
 		<div class="flex items-start justify-between gap-3">
 			<h1 class="text-xl leading-snug font-bold">{a.titulo}</h1>
-			{@render lapizDe('titulo', 'el título y la descripción')}
+			{@render lapizDe('titulo', 'el título')}
 		</div>
 		{#if lugar}
 			<div class="flex items-center justify-between gap-3">
@@ -196,7 +198,7 @@
 						{a.superficie_m2} m² aprox.
 					</span>
 				{/if}
-				{@render lapizDe('ambientes', 'los ambientes')}
+				{@render lapizDe('ambientes', 'cocina, comedor, baños y dormitorios')}
 			</div>
 		</div>
 		<ul class="grid grid-cols-3 gap-2 text-center">
@@ -209,10 +211,15 @@
 		</ul>
 	</section>
 
-	{#if a.descripcion}
-		<p class="whitespace-pre-line text-slate-700">{a.descripcion}</p>
-	{:else if editando}
-		<p class="text-sm text-slate-500 italic">Sin descripción.</p>
+	{#if a.descripcion || editando}
+		<div class="flex items-start justify-between gap-3">
+			{#if a.descripcion}
+				<p class="whitespace-pre-line text-slate-700">{a.descripcion}</p>
+			{:else}
+				<p class="text-sm text-slate-500 italic">Sin descripción.</p>
+			{/if}
+			{@render lapizDe('titulo', 'la descripción')}
+		</div>
 	{/if}
 
 	{#if servicios.length || a.otros_servicios || editando}

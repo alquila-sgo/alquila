@@ -33,7 +33,9 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		expensas: texto(f, 'expensas'),
 		sin_expensas: marcado('sin_expensas'),
 		ajuste: texto(f, 'ajuste'),
-		ambientes: texto(f, 'ambientes'),
+		cocina: texto(f, 'cocina'),
+		cocina_comedor: texto(f, 'cocina_comedor'),
+		comedor: texto(f, 'comedor'),
 		dormitorios: texto(f, 'dormitorios'),
 		banos: texto(f, 'banos'),
 		superficie_m2: texto(f, 'superficie_m2'),
@@ -107,10 +109,19 @@ export function validarAviso(
 	}
 	if (v.ajuste.length > 120) e.ajuste = 'Máximo 120 caracteres.';
 
-	const ambientes = entero(v.ambientes, 1, 20);
-	if (!ambientes) e.ambientes = 'Entre 1 y 20.';
+	const cocina = entero(v.cocina, 0, 10);
+	if (cocina === null) e.cocina = 'Entre 0 y 10.';
+	const cocinaComedor = entero(v.cocina_comedor, 0, 10);
+	if (cocinaComedor === null) e.cocina_comedor = 'Entre 0 y 10.';
+	const comedor = entero(v.comedor, 0, 10);
+	if (comedor === null) e.comedor = 'Entre 0 y 10.';
 	const dormitorios = entero(v.dormitorios, 0, 20);
 	if (dormitorios === undefined || dormitorios === null) e.dormitorios = 'Entre 0 y 20.';
+	// Ya no se pregunta: se calcula (dormitorios + comedores), mínimo 1.
+	const ambientes = Math.min(
+		20,
+		Math.max(1, (dormitorios ?? 0) + (comedor ?? 0) + (cocinaComedor ?? 0))
+	);
 	const banos = entero(v.banos, 0, 10);
 	if (banos === null) e.banos = 'Entre 0 y 10.';
 	const superficie = entero(v.superficie_m2, 1, 100000);
@@ -165,6 +176,9 @@ export function validarAviso(
 				sin_expensas: v.sin_expensas,
 				ajuste: v.ajuste || null,
 				ambientes,
+				cocina: cocina ?? 0,
+				cocina_comedor: cocinaComedor ?? 0,
+				comedor: comedor ?? 0,
 				dormitorios,
 				banos: banos ?? null,
 				superficie_m2: superficie ?? null,
@@ -208,7 +222,9 @@ export function filaAValores(
 		expensas: montoATexto(a.expensas),
 		sin_expensas: a.sin_expensas === true,
 		ajuste: s(a.ajuste),
-		ambientes: s(a.ambientes),
+		cocina: s(a.cocina),
+		cocina_comedor: s(a.cocina_comedor),
+		comedor: s(a.comedor),
 		dormitorios: s(a.dormitorios),
 		banos: s(a.banos),
 		superficie_m2: s(a.superficie_m2),

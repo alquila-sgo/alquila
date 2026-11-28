@@ -129,12 +129,11 @@
 		},
 		{
 			titulo: '¿Cómo es por dentro?',
-			campos: ['ambientes', 'dormitorios', 'banos', 'superficie_m2'],
-			chequeo: () =>
-				!v.ambientes ? 'Indicá los ambientes.' : !v.dormitorios ? 'Indicá los dormitorios.' : ''
+			campos: ['cocina', 'cocina_comedor', 'comedor', 'banos', 'dormitorios', 'superficie_m2'],
+			chequeo: () => (v.dormitorios === '' ? 'Indicá los dormitorios.' : '')
 		},
 		{
-			titulo: '¿Qué tiene?',
+			titulo: 'Servicios',
 			ayuda: 'Tocá todo lo que corresponda.',
 			campos: ['otros_servicios', 'amueblado'],
 			chequeo: () => ''
@@ -367,9 +366,16 @@
 
 		<!-- 5. Ambientes -->
 		<div hidden={paso !== 4} class="divide-y divide-slate-200">
-			<Contador nombre="ambientes" etiqueta="Ambientes" bind:valor={v.ambientes} min={1} />
+			<Contador nombre="cocina" etiqueta="Cocina" bind:valor={v.cocina} max={10} />
+			<Contador
+				nombre="cocina_comedor"
+				etiqueta="Cocina-comedor"
+				bind:valor={v.cocina_comedor}
+				max={10}
+			/>
+			<Contador nombre="comedor" etiqueta="Comedor" bind:valor={v.comedor} max={10} />
+			<Contador nombre="banos" etiqueta="Baño" bind:valor={v.banos} max={10} />
 			<Contador nombre="dormitorios" etiqueta="Dormitorios" bind:valor={v.dormitorios} />
-			<Contador nombre="banos" etiqueta="Baños" bind:valor={v.banos} max={10} />
 			<Contador
 				nombre="superficie_m2"
 				etiqueta="Superficie aprox."
