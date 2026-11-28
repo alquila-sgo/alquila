@@ -7,6 +7,7 @@
 
 	let { children, data }: LayoutProps = $props();
 	const enInicio = $derived(page.url.pathname === '/');
+	let fotoRota = $state(false);
 </script>
 
 <svelte:head>
@@ -32,7 +33,28 @@
 					<a href={resolve('/mis-avisos')} class="rounded-lg px-2.5 py-2 hover:bg-white">
 						Mis avisos
 					</a>
-					<a href={resolve('/cuenta')} class="rounded-lg px-2.5 py-2 hover:bg-white">Mi cuenta</a>
+					<a
+						href={resolve('/cuenta')}
+						class="ml-1 rounded-full ring-2 ring-white transition hover:ring-marca-200"
+						aria-label="Mi cuenta"
+						title="Mi cuenta"
+					>
+						{#if data.usuario.foto && !fotoRota}
+							<img
+								src={data.usuario.foto}
+								alt=""
+								class="h-9 w-9 rounded-full object-cover"
+								referrerpolicy="no-referrer"
+								onerror={() => (fotoRota = true)}
+							/>
+						{:else}
+							<span
+								class="grid h-9 w-9 place-items-center rounded-full bg-marca-700 font-bold text-white uppercase"
+							>
+								{(data.usuario.email ?? '?').charAt(0)}
+							</span>
+						{/if}
+					</a>
 				{:else}
 					<a href={resolve('/ingresar')} class="rounded-lg px-2.5 py-2 hover:bg-white">Ingresar</a>
 					<a href={resolve('/publicar')} class="btn btn-acento btn-chico hidden sm:inline-flex">

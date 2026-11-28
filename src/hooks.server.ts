@@ -9,7 +9,16 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const { data, error } = await event.locals.supabase.auth.getClaims();
 		if (error || !data) return null;
 		const c = data.claims;
-		return { id: c.sub, email: typeof c.email === 'string' ? c.email : null };
+		// Google deja la foto de perfil en user_metadata (avatar_url o picture).
+		const meta = (c.user_metadata ?? {}) as Record<string, unknown>;
+		const foto = [meta.avatar_url, meta.picture].find(
+			(u): u is string => typeof u === 'string' && u.startsWith('https://')
+		);
+		return {
+			id: c.sub,
+			email: typeof c.email === 'string' ? c.email : null,
+			foto: foto ?? null
+		};
 	};
 
 	return resolve(event, {

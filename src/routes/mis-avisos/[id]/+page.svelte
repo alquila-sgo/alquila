@@ -3,7 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { ESTADOS, MAX_FOTOS, MIN_FOTOS } from '#lib/avisos.js';
 	import { comprimirFoto } from '#lib/imagenes.js';
-	import { invalidateAll, replaceState } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import PantallaPasos from '#lib/componentes/pasos/PantallaPasos.svelte';
 	import PublicacionExitosa from '#lib/componentes/pasos/PublicacionExitosa.svelte';
 	import type { PageProps } from './$types';
@@ -13,7 +13,7 @@
 	let subiendo = $state('');
 	let errorFotos = $state('');
 	let festejoVisto = $state(false);
-	const festejar = $derived(data.nuevo && a.estado === 'publicado' && !festejoVisto);
+	const festejar = $derived(!!form && 'publicado' in form && !festejoVisto);
 
 	async function subir(ev: Event) {
 		const input = ev.currentTarget as HTMLInputElement;
@@ -53,9 +53,9 @@
 {#if festejar}
 	<PublicacionExitosa
 		onlisto={() => {
+			if (festejoVisto) return;
 			festejoVisto = true;
-			// Saca ?nuevo de la dirección para que no se repita al recargar.
-			void replaceState(resolve('/mis-avisos/[id]', { id: a.id }), {});
+			void goto(resolve('/mis-avisos'), { replaceState: true });
 		}}
 	/>
 {/if}

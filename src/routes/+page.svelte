@@ -3,16 +3,13 @@
 
 	const sellos = [
 		{ texto: 'Gratis', icono: 'M5 13l4 4L19 7' },
+		// Estrella: sencillo
 		{
-			texto: 'Directo por WhatsApp',
-			icono:
-				'M21 12c0 4.6-4 8.2-9 8.2-1.5 0-2.9-.3-4.2-.9L3 20.3l1.4-3.7A7.8 7.8 0 0 1 3 12c0-4.5 4-8.2 9-8.2s9 3.7 9 8.2Z'
+			texto: 'Sencillo',
+			icono: 'M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6'
 		},
-		{
-			texto: 'Con mapa',
-			icono:
-				'M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm4.5 0c0 7.1-7.5 11.3-7.5 11.3S4.5 17.6 4.5 10.5a7.5 7.5 0 1 1 15 0Z'
-		}
+		// Flecha: directo
+		{ texto: 'Directo', icono: 'M5 12h14M13 6l6 6-6 6' }
 	];
 </script>
 
@@ -26,7 +23,7 @@
 	>
 		<div class="space-y-4 text-center md:text-left">
 			<h1 class="text-4xl leading-[1.05] font-extrabold sm:text-5xl">
-				Alquilá fácil en <span class="text-sol-400">Santiago</span>.
+				Alquilá en <span class="text-sol-400">Santiago</span>.
 			</h1>
 			<ul class="flex flex-wrap justify-center gap-2 md:justify-start">
 				{#each sellos as s (s.texto)}
@@ -124,10 +121,7 @@
 				<path d="M3 11 12 4l9 7M5 10v11h14V10M12 12v6M9 15h6" />
 			</svg>
 		</span>
-		<span>
-			<span class="block text-xl font-extrabold">Publico mi propiedad</span>
-			<span class="block text-sm text-sol-50">Gratis, en pocos pasos</span>
-		</span>
+		<span class="text-xl font-extrabold">Publicar mi propiedad</span>
 	</a>
 	<div class="flex items-center gap-4 rounded-3xl bg-white p-5 shadow-xl ring-1 ring-slate-200">
 		<span class="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-marca-50 text-marca-700">
@@ -143,14 +137,11 @@
 				<circle cx="11" cy="11" r="6.5" /><path d="m20 20-4.2-4.2" />
 			</svg>
 		</span>
-		<span>
-			<span class="flex items-center gap-2 text-xl font-extrabold">
-				Busco alquiler
-				<span class="rounded-full bg-sol-100 px-2 py-0.5 text-xs font-bold text-sol-600">
-					Pronto
-				</span>
+		<span class="flex items-center gap-2 text-xl font-extrabold">
+			Buscar alquiler
+			<span class="rounded-full bg-sol-100 px-2 py-0.5 text-xs font-bold text-sol-600">
+				Pronto
 			</span>
-			<span class="block text-sm text-slate-600">Por zona, precio y tipo</span>
 		</span>
 	</div>
 </section>
