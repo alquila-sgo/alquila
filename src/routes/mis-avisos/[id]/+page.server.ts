@@ -3,6 +3,7 @@ import { mensajeDeError } from '#lib/server/avisos.js';
 import { bucket, borrarCarpetaDelAviso } from '#lib/server/fotos.js';
 import { exigirUsuario } from '#lib/server/sesion.js';
 import { texto } from '#lib/formulario.js';
+import { normalizarWhatsapp } from '#lib/whatsapp.js';
 import type { Actions, PageServerLoad } from './$types';
 
 interface Aviso {
@@ -59,7 +60,22 @@ async function cambiar(locals: App.Locals, id: string, cambios: Record<string, u
 }
 
 export const actions: Actions = {
-	publicar: async ({ locals, params }) => {
+	publicar: async ({ locals, params, request }) => {
+		// Si le faltaba el WhatsApp, la ventana de publicar lo manda y se guarda en su cuenta.
+		const escrito = texto(await request.formData(), 'whatsapp');
+		if (escrito) {
+			const whatsapp = normalizarWhatsapp(escrito);
+			if (!whatsapp) {
+				return fail(400, { errorWhatsapp: 'Código de área sin 0 y número sin 15.', escrito });
+			}
+			const usuario = await locals.usuario();
+			if (!usuario) return fail(401, { mensaje: 'Tu sesión venció. Volvé a ingresar.' });
+			const { error: e } = await locals.supabase
+				.from('perfiles')
+				.update({ whatsapp })
+				.eq('id', usuario.id);
+			if (e) return fail(500, { errorWhatsapp: 'No se pudo guardar el WhatsApp.', escrito });
+		}
 		const r = await cambiar(locals, params.id, { estado: 'publicado' });
 		// La página muestra el festejo con esto, sin depender de la dirección.
 		return isActionFailure(r) ? r : { ok: true, publicado: true };

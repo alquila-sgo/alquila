@@ -17,7 +17,7 @@
 	);
 	const datos = $derived(
 		[
-			etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad),
+			a.tipo_propiedad === 'duplex' ? 'Dúplex' : etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad),
 			`${a.ambientes} amb.`,
 			`${a.dormitorios} dorm.`,
 			a.banos != null && `${a.banos} baño${a.banos === 1 ? '' : 's'}`,

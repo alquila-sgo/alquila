@@ -202,7 +202,7 @@
 	const ICONOS: Record<string, string> = {
 		departamento: 'M4 21V4h11v17M15 9h5v12M2 21h20M8 8h3M8 12h3M8 16h3',
 		casa: 'M3 11 12 4l9 7M5 10v11h14V10M10 21v-6h4v6',
-		duplex: 'M3 10 9 5l6 5M15 10l3-3 3 3M5 9v12h14V9M9 21v-5h3v5M8 11h2M15 13h2',
+		monoambiente: 'M5 21V5h14v16M3 21h18M10 21v-5h4v5M9 9h6',
 		habitacion: 'M3 18V8M3 14h18v4M21 18v-4a3 3 0 0 0-3-3h-7v3M7 11.5a1.5 1.5 0 1 0 0-.01',
 		otro: 'M5 12h.01M12 12h.01M19 12h.01'
 	};

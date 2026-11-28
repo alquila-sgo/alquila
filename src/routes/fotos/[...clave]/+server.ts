@@ -2,7 +2,7 @@ import { error } from '@sveltejs/kit';
 import { bucket } from '#lib/server/fotos.js';
 import type { RequestHandler } from './$types';
 
-const CLAVE = /^avisos\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(webp|jpg)$/;
+const CLAVE = /^(avisos|perfiles)\/[0-9a-f-]{36}\/[0-9a-f-]{36}\.(webp|jpg)$/;
 
 // Sirve las fotos desde R2. Los nombres son únicos, así que se pueden guardar en caché para siempre.
 export const GET: RequestHandler = async ({ params, request }) => {

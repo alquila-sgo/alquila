@@ -13,13 +13,13 @@
 	];
 </script>
 
-<section class="relative overflow-hidden bg-marca-900 text-white">
+<section class="relative flex min-h-0 flex-1 flex-col overflow-hidden bg-marca-900 text-white">
 	<div
 		aria-hidden="true"
 		class="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-sol-500/40 blur-3xl sm:h-96 sm:w-96"
 	></div>
 	<div
-		class="relative mx-auto grid max-w-5xl items-center gap-6 px-4 pt-10 pb-24 md:grid-cols-2 md:pt-16"
+		class="relative mx-auto grid min-h-0 w-full max-w-5xl flex-1 content-center items-center gap-5 px-4 pt-6 pb-20 md:grid-cols-2 md:gap-6"
 	>
 		<div class="space-y-4 text-center md:text-left">
 			<h1 class="text-4xl leading-[1.05] font-extrabold sm:text-5xl">
@@ -49,7 +49,7 @@
 		</div>
 		<svg
 			viewBox="0 0 400 300"
-			class="mx-auto w-full max-w-[15rem] drop-shadow-2xl md:max-w-sm"
+			class="mx-auto h-full max-h-[30dvh] min-h-0 w-full max-w-[15rem] drop-shadow-2xl md:max-h-[50dvh] md:max-w-sm"
 			aria-hidden="true"
 		>
 			<circle cx="300" cy="80" r="46" fill="#fb923c" />
@@ -102,7 +102,9 @@
 </section>
 
 <!-- Dos caminos, nada más -->
-<section class="relative mx-auto -mt-16 grid max-w-3xl gap-3 px-4 sm:grid-cols-2">
+<section
+	class="relative mx-auto -mt-16 grid w-full max-w-3xl shrink-0 gap-3 px-4 pb-4 sm:grid-cols-2"
+>
 	<a
 		href={resolve('/publicar')}
 		class="group flex items-center gap-4 rounded-3xl bg-sol-500 p-5 text-white shadow-xl shadow-sol-600/30 transition hover:-translate-y-0.5 hover:bg-sol-600"

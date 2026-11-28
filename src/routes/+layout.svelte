@@ -7,7 +7,7 @@
 
 	let { children, data }: LayoutProps = $props();
 	const enInicio = $derived(page.url.pathname === '/');
-	let fotoRota = $state(false);
+	let fotoRota = $state('');
 </script>
 
 <svelte:head>
@@ -19,7 +19,8 @@
 	/>
 </svelte:head>
 
-<div class="flex min-h-dvh flex-col">
+<!-- La portada ocupa justo la pantalla: sin deslizar y sin pie. -->
+<div class={['flex flex-col', enInicio ? 'h-dvh overflow-hidden' : 'min-h-dvh']}>
 	<header class="sticky top-0 z-20 border-b border-slate-200/70 bg-crema/85 backdrop-blur-md">
 		<div class="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3">
 			<a href={resolve('/')} class="flex items-center gap-2" aria-label="Alquilá Sgo, inicio">
@@ -39,19 +40,19 @@
 						aria-label="Mi cuenta"
 						title="Mi cuenta"
 					>
-						{#if data.usuario.foto && !fotoRota}
+						{#if data.usuario.foto && fotoRota !== data.usuario.foto}
 							<img
 								src={data.usuario.foto}
 								alt=""
 								class="h-9 w-9 rounded-full object-cover"
 								referrerpolicy="no-referrer"
-								onerror={() => (fotoRota = true)}
+								onerror={() => (fotoRota = data.usuario?.foto ?? '')}
 							/>
 						{:else}
 							<span
 								class="grid h-9 w-9 place-items-center rounded-full bg-marca-700 font-bold text-white uppercase"
 							>
-								{(data.usuario.email ?? '?').charAt(0)}
+								{(data.usuario.nombre || data.usuario.email || '?').charAt(0)}
 							</span>
 						{/if}
 					</a>
@@ -65,11 +66,15 @@
 		</div>
 	</header>
 
-	<main class={['flex-1', !enInicio && 'mx-auto w-full max-w-3xl px-4 py-8']}>
+	<main
+		class={['flex-1', enInicio ? 'flex min-h-0 flex-col' : 'mx-auto w-full max-w-3xl px-4 py-8']}
+	>
 		{@render children()}
 	</main>
 
-	<footer class="mt-16 border-t border-slate-200/70 py-6 text-center text-sm text-slate-500">
-		Alquilá<span class="font-semibold text-sol-500">Sgo</span> · Hecho en Santiago del Estero
-	</footer>
+	{#if !enInicio}
+		<footer class="mt-16 border-t border-slate-200/70 py-6 text-center text-sm text-slate-500">
+			Alquilá<span class="font-semibold text-sol-500">Sgo</span> · Hecho en Santiago del Estero
+		</footer>
+	{/if}
 </div>

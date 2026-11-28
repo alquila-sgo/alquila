@@ -80,7 +80,9 @@ export function validarAviso(
 	const e: Record<string, string> = {};
 
 	if (v.titulo.length < 10 || v.titulo.length > 100) e.titulo = 'Entre 10 y 100 caracteres.';
-	if (!valoresDe(TIPOS_PROPIEDAD).includes(v.tipo_propiedad)) e.tipo_propiedad = 'Elegí un tipo.';
+	// 'duplex' ya no se ofrece, pero los avisos viejos lo pueden tener.
+	if (![...valoresDe(TIPOS_PROPIEDAD), 'duplex'].includes(v.tipo_propiedad))
+		e.tipo_propiedad = 'Elegí un tipo.';
 	// Una localidad de la lista o, si eligió "Otra", el nombre que escribió.
 	const localidad = entero(v.localidad_id, 1, 1e9) || null;
 	const otra = localidad ? '' : v.localidad_otra;

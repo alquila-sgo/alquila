@@ -3,7 +3,7 @@
 export const TIPOS_PROPIEDAD = [
 	['departamento', 'Departamento'],
 	['casa', 'Casa'],
-	['duplex', 'Dúplex'],
+	['monoambiente', 'Monoambiente'],
 	['habitacion', 'Habitación'],
 	['otro', 'Otro']
 ] as const;

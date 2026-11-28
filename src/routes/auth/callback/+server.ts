@@ -1,5 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import { destinoSeguro } from '#lib/server/supabase.js';
+import { exigirDatos } from '#lib/server/perfil.js';
 import type { RequestHandler } from './$types';
 
 // Supabase vuelve acá después de Google o del enlace del email.
@@ -8,8 +9,12 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 	const next = destinoSeguro(url.searchParams.get('next'), '/cuenta');
 
 	if (code) {
-		const { error } = await locals.supabase.auth.exchangeCodeForSession(code);
-		if (!error) redirect(303, next);
+		const { data, error } = await locals.supabase.auth.exchangeCodeForSession(code);
+		if (!error) {
+			// Cuenta nueva: primero sus datos (nombre, WhatsApp y foto), después a donde iba.
+			await exigirDatos(locals, data.user.id, next);
+			redirect(303, next);
+		}
 	}
 	redirect(303, '/ingresar?error=enlace');
 };
