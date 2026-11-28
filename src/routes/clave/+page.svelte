@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { resolve } from '$app/paths';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -11,9 +12,8 @@
 
 <section class="tarjeta mx-auto max-w-sm space-y-6">
 	<div class="space-y-1 text-center">
-		<p class="aviso-ok mb-4">¡Email verificado!</p>
 		<h1 class="titulo-pagina">Creá tu contraseña</h1>
-		<p class="text-sm text-slate-600">{data.email}</p>
+		{#if data.email}<p class="text-sm text-slate-600">{data.email}</p>{/if}
 	</div>
 
 	<form
@@ -28,8 +28,12 @@
 		}}
 	>
 		<input type="hidden" name="next" value={data.next} />
-		<!-- Para que el celular la guarde junto al email. -->
-		<input type="email" name="usuario" value={data.email} autocomplete="username" hidden />
+		<input type="hidden" name="token_hash" value={data.tokenHash} />
+		<input type="hidden" name="tipo" value={data.tipo} />
+		{#if data.email}
+			<!-- Para que el celular la guarde junto al email. -->
+			<input type="email" name="usuario" value={data.email} autocomplete="username" hidden />
+		{/if}
 		<label class="block space-y-1">
 			<span class="etiqueta">Contraseña</span>
 			<input
@@ -58,7 +62,14 @@
 		<label class="flex items-center gap-2 text-sm text-slate-600">
 			<input type="checkbox" bind:checked={ver} /> Mostrar contraseña
 		</label>
-		{#if form?.mensaje}<p class="aviso-error" role="alert">{form.mensaje}</p>{/if}
+		{#if form?.mensaje}
+			<p class="aviso-error" role="alert">
+				{form.mensaje}
+				{#if form && 'vencido' in form}
+					<a href={resolve('/ingresar')} class="font-semibold underline">Ir a Ingresar</a>
+				{/if}
+			</p>
+		{/if}
 		<button class="btn btn-acento w-full py-4 text-lg" disabled={enviando}>
 			{enviando ? 'Guardando…' : 'Continuar'}
 		</button>
