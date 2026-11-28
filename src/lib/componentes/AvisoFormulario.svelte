@@ -63,22 +63,23 @@
 		localidades.filter((l) => !principales.some((p) => p.id === String(l.id)))
 	);
 	let eleccion = $state('');
-	let otraTexto = $state('');
 	$effect.pre(() => {
 		const id = inicial.localidad_id;
+		const otra = inicial.localidad_otra;
 		untrack(() => {
-			if (!id) eleccion = '';
-			else if (principales.some((p) => p.id === id)) eleccion = id;
-			else {
+			if (id && principales.some((p) => p.id === id)) eleccion = id;
+			else if (id || otra) {
 				eleccion = 'otro';
-				otraTexto = localidades.find((l) => String(l.id) === id)?.nombre ?? '';
-			}
+				v.localidad_otra = otra || (localidades.find((l) => String(l.id) === id)?.nombre ?? '');
+				v.localidad_id = buscarOtra(v.localidad_otra);
+			} else eleccion = '';
 		});
 	});
 	function elegirLocalidad(valor: string) {
 		eleccion = valor;
-		v.localidad_id = valor === 'otro' ? buscarOtra(otraTexto) : valor;
+		v.localidad_id = valor === 'otro' ? buscarOtra(v.localidad_otra) : valor;
 	}
+	/** Si lo que escribió coincide con una localidad conocida, se guarda esa; si no, el texto libre. */
 	function buscarOtra(t: string) {
 		const l = otras.find((x) => sinTildes(x.nombre) === sinTildes(t));
 		return l ? String(l.id) : '';
@@ -101,12 +102,14 @@
 		{ titulo: '¿Qué vas a alquilar?', campos: ['tipo_propiedad'], chequeo: () => '' },
 		{
 			titulo: '¿En qué localidad está?',
-			campos: ['localidad_id', 'barrio'],
+			campos: ['localidad_id', 'localidad_otra', 'barrio'],
 			chequeo: () =>
-				v.localidad_id
-					? ''
-					: eleccion === 'otro'
-						? 'No encontramos esa localidad. Elegila de la lista que aparece al escribir.'
+				eleccion === 'otro'
+					? v.localidad_otra.trim().length >= 2
+						? ''
+						: 'Escribí el nombre de la localidad.'
+					: v.localidad_id
+						? ''
 						: 'Elegí la localidad.'
 		},
 		{
@@ -129,7 +132,7 @@
 		{
 			titulo: '¿Qué tiene?',
 			ayuda: 'Tocá todo lo que corresponda.',
-			campos: ['otros_servicios'],
+			campos: ['otros_servicios', 'amueblado'],
 			chequeo: () => ''
 		},
 		{
@@ -150,7 +153,7 @@
 		},
 		{
 			titulo: 'Condiciones',
-			campos: ['mascotas', 'amueblado', 'requisitos'],
+			campos: ['mascotas', 'requisitos'],
 			chequeo: () => ''
 		},
 		{
@@ -210,7 +213,7 @@
 	};
 
 	const chip =
-		'rounded-full border-2 px-4 py-2.5 text-sm font-semibold transition has-[:checked]:border-marca-600 has-[:checked]:bg-marca-600 has-[:checked]:text-white border-slate-300 bg-white text-slate-700';
+		'rounded-full border-2 px-4 py-2 text-sm font-semibold transition has-[:checked]:border-marca-600 has-[:checked]:bg-marca-600 has-[:checked]:text-white border-slate-300 bg-white text-slate-700';
 	const opcion =
 		'flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white p-4 font-semibold transition has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50';
 </script>
@@ -293,9 +296,11 @@
 			</div>
 			{#if eleccion === 'otro'}
 				<input
+					name="localidad_otra"
 					list="lista-localidades"
-					bind:value={otraTexto}
-					oninput={() => (v.localidad_id = buscarOtra(otraTexto))}
+					bind:value={v.localidad_otra}
+					oninput={() => (v.localidad_id = buscarOtra(v.localidad_otra))}
+					maxlength="80"
 					placeholder="Escribí la localidad"
 					aria-label="Otra localidad"
 					autocomplete="off"
@@ -369,7 +374,7 @@
 		</div>
 
 		<!-- 6. Comodidades -->
-		<div hidden={paso !== 5} class="space-y-5">
+		<div hidden={paso !== 5} class="space-y-4">
 			<div class="flex flex-wrap content-start gap-2.5">
 				{#each SERVICIOS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -394,6 +399,22 @@
 					class="campo py-3"
 				/>
 			</label>
+			<fieldset class="space-y-2">
+				<legend class="etiqueta mb-2">¿Está amueblado?</legend>
+				<div class="flex flex-wrap gap-2">
+					{#each AMUEBLADO as [valor, texto] (valor)}
+						<label class={chip}>
+							<input
+								type="radio"
+								name="amueblado"
+								value={valor}
+								bind:group={v.amueblado}
+								class="sr-only"
+							/>{texto}
+						</label>
+					{/each}
+				</div>
+			</fieldset>
 		</div>
 
 		<!-- 7. Precio -->
@@ -485,22 +506,6 @@
 								name="mascotas"
 								value={valor}
 								bind:group={v.mascotas}
-								class="sr-only"
-							/>{texto}
-						</label>
-					{/each}
-				</div>
-			</fieldset>
-			<fieldset class="space-y-2">
-				<legend class="etiqueta mb-2">¿Está amueblado?</legend>
-				<div class="flex flex-wrap gap-2">
-					{#each AMUEBLADO as [valor, texto] (valor)}
-						<label class={chip}>
-							<input
-								type="radio"
-								name="amueblado"
-								value={valor}
-								bind:group={v.amueblado}
 								class="sr-only"
 							/>{texto}
 						</label>

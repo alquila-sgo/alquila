@@ -60,6 +60,7 @@ export interface ValoresAviso {
 	titulo: string;
 	tipo_propiedad: string;
 	localidad_id: string;
+	localidad_otra: string;
 	barrio: string;
 	descripcion: string;
 	consultar_precio: boolean;
@@ -92,6 +93,7 @@ export const VALORES_VACIOS: ValoresAviso = {
 	titulo: '',
 	tipo_propiedad: 'departamento',
 	localidad_id: '',
+	localidad_otra: '',
 	barrio: '',
 	descripcion: '',
 	consultar_precio: false,
