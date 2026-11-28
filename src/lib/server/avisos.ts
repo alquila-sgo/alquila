@@ -23,6 +23,7 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		titulo: texto(f, 'titulo'),
 		tipo_propiedad: texto(f, 'tipo_propiedad'),
 		localidad_id: texto(f, 'localidad_id'),
+		localidad_otra: texto(f, 'localidad_otra'),
 		barrio: texto(f, 'barrio'),
 		descripcion: texto(f, 'descripcion'),
 		consultar_precio: marcado('consultar_precio'),
@@ -80,8 +81,11 @@ export function validarAviso(
 
 	if (v.titulo.length < 10 || v.titulo.length > 100) e.titulo = 'Entre 10 y 100 caracteres.';
 	if (!valoresDe(TIPOS_PROPIEDAD).includes(v.tipo_propiedad)) e.tipo_propiedad = 'Elegí un tipo.';
-	const localidad = entero(v.localidad_id, 1, 1e9);
-	if (!localidad) e.localidad_id = 'Elegí la localidad.';
+	// Una localidad de la lista o, si eligió "Otra", el nombre que escribió.
+	const localidad = entero(v.localidad_id, 1, 1e9) || null;
+	const otra = localidad ? '' : v.localidad_otra;
+	if (!localidad && otra.length < 2) e.localidad_id = 'Elegí o escribí la localidad.';
+	else if (otra.length > 80) e.localidad_id = 'Máximo 80 caracteres.';
 	if (v.barrio.length > 80) e.barrio = 'Máximo 80 caracteres.';
 	if (v.descripcion.length < 20 || v.descripcion.length > 3000) {
 		e.descripcion = 'Entre 20 y 3000 caracteres.';
@@ -147,6 +151,7 @@ export function validarAviso(
 				titulo: v.titulo,
 				tipo_propiedad: v.tipo_propiedad,
 				localidad_id: localidad,
+				localidad_otra: otra || null,
 				barrio: v.barrio || null,
 				descripcion: v.descripcion,
 				consultar_precio: v.consultar_precio,
@@ -190,6 +195,7 @@ export function filaAValores(
 		titulo: s(a.titulo),
 		tipo_propiedad: s(a.tipo_propiedad),
 		localidad_id: s(a.localidad_id),
+		localidad_otra: s(a.localidad_otra),
 		barrio: s(a.barrio),
 		descripcion: s(a.descripcion),
 		consultar_precio: a.consultar_precio === true,
