@@ -54,6 +54,7 @@ export const actions: Actions = {
 			.eq('id', usuario.id);
 		if (error) return fail(500, { mensaje: 'No se pudo guardar. Probá de nuevo.' });
 
-		return { guardado: true };
+		// Guardado: directo a la portada.
+		redirect(303, '/');
 	}
 };

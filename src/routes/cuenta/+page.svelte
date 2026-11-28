@@ -104,7 +104,6 @@
 		<button disabled={guardando} class="btn btn-primario w-full">
 			{guardando ? 'Guardando…' : 'Guardar'}
 		</button>
-		{#if form?.guardado}<p class="text-sm text-marca-800">Listo, guardado.</p>{/if}
 		{#if form?.mensaje}<p class="text-sm text-red-700">{form.mensaje}</p>{/if}
 	</form>
 
