@@ -1,9 +1,10 @@
 import {
 	AMUEBLADO,
 	GARANTIAS,
+	CONDICIONES,
 	LIMITES_PROVINCIA,
 	montoATexto,
-	MASCOTAS,
+	SI_NO,
 	SERVICIOS,
 	TIPOS_PROPIEDAD,
 	type ValoresAviso
@@ -40,6 +41,8 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		banos: texto(f, 'banos'),
 		superficie_m2: texto(f, 'superficie_m2'),
 		mascotas: texto(f, 'mascotas'),
+		menores: texto(f, 'menores'),
+		fumadores: texto(f, 'fumadores'),
 		amueblado: texto(f, 'amueblado'),
 		garantias: varios('garantias', valoresDe(GARANTIAS)),
 		meses_deposito: texto(f, 'meses_deposito'),
@@ -127,7 +130,9 @@ export function validarAviso(
 	const superficie = entero(v.superficie_m2, 1, 100000);
 	if (superficie === null) e.superficie_m2 = 'Número entero de m².';
 
-	if (!valoresDe(MASCOTAS).includes(v.mascotas)) e.mascotas = 'Elegí una opción.';
+	for (const [c] of CONDICIONES) {
+		if (v[c] && !valoresDe(SI_NO).includes(v[c])) e[c] = 'Opción inválida.';
+	}
 	if (v.amueblado && !valoresDe(AMUEBLADO).includes(v.amueblado)) e.amueblado = 'Opción inválida.';
 	const meses = entero(v.meses_deposito, 0, 12);
 	if (meses === null) e.meses_deposito = 'Entre 0 y 12.';
@@ -182,7 +187,9 @@ export function validarAviso(
 				dormitorios,
 				banos: banos ?? null,
 				superficie_m2: superficie ?? null,
-				mascotas: v.mascotas,
+				mascotas: v.mascotas || null,
+				menores: v.menores || null,
+				fumadores: v.fumadores || null,
 				amueblado: v.amueblado || null,
 				garantias: v.garantias,
 				meses_deposito: meses ?? null,
@@ -228,7 +235,10 @@ export function filaAValores(
 		dormitorios: s(a.dormitorios),
 		banos: s(a.banos),
 		superficie_m2: s(a.superficie_m2),
-		mascotas: s(a.mascotas),
+		// 'consultar' (avisos viejos) cuenta como sin responder.
+		mascotas: a.mascotas === 'consultar' ? '' : s(a.mascotas),
+		menores: a.menores === 'consultar' ? '' : s(a.menores),
+		fumadores: a.fumadores === 'consultar' ? '' : s(a.fumadores),
 		amueblado: s(a.amueblado),
 		garantias: Array.isArray(a.garantias) ? (a.garantias as string[]) : [],
 		meses_deposito: s(a.meses_deposito),

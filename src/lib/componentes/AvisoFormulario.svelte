@@ -8,7 +8,8 @@
 		AMUEBLADO,
 		formatearMiles,
 		GARANTIAS,
-		MASCOTAS,
+		CONDICIONES,
+		SI_NO,
 		SERVICIOS,
 		TIPOS_PROPIEDAD,
 		type Localidad,
@@ -97,6 +98,8 @@
 		untrack(() => (cobra = sin ? 'no' : monto ? 'si' : ''));
 	});
 
+	// Monoambiente y habitación: en el paso 5 solo se pregunta la superficie.
+	const esMono = $derived(['monoambiente', 'habitacion'].includes(v.tipo_propiedad));
 	let paso = $state(untrack(() => soloPaso ?? 0));
 	let aviso = $state('');
 	let enviando = $state(false);
@@ -156,7 +159,8 @@
 		},
 		{
 			titulo: 'Condiciones',
-			campos: ['mascotas', 'requisitos'],
+			ayuda: 'Ninguna es obligatoria. Tocá de nuevo para dejarla sin responder.',
+			campos: ['mascotas', 'menores', 'fumadores', 'requisitos'],
 			chequeo: () => ''
 		},
 		{
@@ -366,16 +370,25 @@
 
 		<!-- 5. Ambientes -->
 		<div hidden={paso !== 4} class="divide-y divide-slate-200">
-			<Contador nombre="cocina" etiqueta="Cocina" bind:valor={v.cocina} max={10} />
-			<Contador
-				nombre="cocina_comedor"
-				etiqueta="Cocina-comedor"
-				bind:valor={v.cocina_comedor}
-				max={10}
-			/>
-			<Contador nombre="comedor" etiqueta="Comedor" bind:valor={v.comedor} max={10} />
-			<Contador nombre="banos" etiqueta="Baño" bind:valor={v.banos} max={10} />
-			<Contador nombre="dormitorios" etiqueta="Dormitorios" bind:valor={v.dormitorios} />
+			<!-- Monoambiente o habitación: solo se pregunta la superficie. -->
+			{#if esMono}
+				<input type="hidden" name="cocina" value="0" />
+				<input type="hidden" name="cocina_comedor" value="0" />
+				<input type="hidden" name="comedor" value="0" />
+				<input type="hidden" name="banos" value="" />
+				<input type="hidden" name="dormitorios" value="0" />
+			{:else}
+				<Contador nombre="cocina" etiqueta="Cocina" bind:valor={v.cocina} max={10} />
+				<Contador
+					nombre="cocina_comedor"
+					etiqueta="Cocina-comedor"
+					bind:valor={v.cocina_comedor}
+					max={10}
+				/>
+				<Contador nombre="comedor" etiqueta="Comedor" bind:valor={v.comedor} max={10} />
+				<Contador nombre="banos" etiqueta="Baño" bind:valor={v.banos} max={10} />
+				<Contador nombre="dormitorios" etiqueta="Dormitorios" bind:valor={v.dormitorios} />
+			{/if}
 			<Contador
 				nombre="superficie_m2"
 				etiqueta="Superficie aprox."
@@ -513,30 +526,37 @@
 		</div>
 
 		<!-- 9. Condiciones -->
-		<div hidden={paso !== 8} class="space-y-6">
-			<fieldset class="space-y-2">
-				<legend class="etiqueta mb-2">¿Acepta mascotas?</legend>
-				<div class="flex flex-wrap gap-2">
-					{#each MASCOTAS as [valor, texto] (valor)}
-						<label class={chip}>
-							<input
-								type="radio"
-								name="mascotas"
-								value={valor}
-								bind:group={v.mascotas}
-								class="sr-only"
-							/>{texto}
-						</label>
-					{/each}
+		<div hidden={paso !== 8} class="space-y-5">
+			{#each CONDICIONES as [campo, pregunta] (campo)}
+				<div class="flex items-center justify-between gap-3">
+					<span class="font-semibold">{pregunta}</span>
+					<div class="flex gap-2">
+						{#each SI_NO as [valor, texto] (valor)}
+							<!-- Tocar la opción elegida la desmarca: queda sin responder. -->
+							<button
+								type="button"
+								aria-pressed={v[campo] === valor}
+								class="rounded-full border-2 px-4 py-2 text-sm font-semibold transition {v[
+									campo
+								] === valor
+									? 'border-marca-600 bg-marca-600 text-white'
+									: 'border-slate-300 bg-white text-slate-700'}"
+								onclick={() => (v[campo] = v[campo] === valor ? '' : valor)}
+							>
+								{texto}
+							</button>
+						{/each}
+					</div>
+					<input type="hidden" name={campo} value={v[campo]} />
 				</div>
-			</fieldset>
+			{/each}
 			<label class="block space-y-2">
 				<span class="etiqueta">Otros requisitos</span>
 				<input
 					name="requisitos"
 					bind:value={v.requisitos}
 					maxlength="500"
-					placeholder="Ej: no fumadores"
+					placeholder="Ej: referencias laborales"
 					class="campo py-3"
 				/>
 			</label>

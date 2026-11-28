@@ -2,7 +2,8 @@
 	import {
 		AMUEBLADO,
 		GARANTIAS,
-		MASCOTAS,
+		CONDICIONES,
+		SI_NO,
 		SERVICIOS,
 		TIPOS_PROPIEDAD,
 		type AvisoPublico
@@ -63,7 +64,22 @@
 		SERVICIOS.filter(([k]) => a[k as keyof typeof a] === true).map(([, t]) => t)
 	);
 	const garantias = $derived(a.garantias.map((g) => etiqueta(GARANTIAS, g)).filter(Boolean));
+	const editando = $derived(!!lapiz);
 	const amoblado = $derived(etiqueta(AMUEBLADO, a.amueblado));
+	// Solo las que respondió con sí o no ('consultar' de avisos viejos no se muestra).
+	const condiciones = $derived(
+		CONDICIONES.map(([c, , nombre]) => ({ nombre, valor: etiqueta(SI_NO, a[c]) })).filter(
+			(x) => x.valor
+		)
+	);
+	const hayCondiciones = $derived(
+		condiciones.length ||
+			!!amoblado ||
+			!!a.requisitos ||
+			garantias.length ||
+			!!a.meses_deposito ||
+			editando
+	);
 
 	let foto = $state(0);
 	function alDeslizar(ev: Event) {
@@ -71,7 +87,6 @@
 		foto = Math.round(el.scrollLeft / el.clientWidth);
 	}
 
-	const editando = $derived(!!lapiz);
 	const claseLapiz =
 		'grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-marca-700 shadow ring-1 ring-slate-200 transition hover:bg-marca-50';
 </script>
@@ -201,14 +216,16 @@
 				{@render lapizDe('ambientes', 'cocina, comedor, baños y dormitorios')}
 			</div>
 		</div>
-		<ul class="grid grid-cols-3 gap-2 text-center">
-			{#each ambientes as x (x.texto)}
-				<li class="rounded-2xl bg-white/10 px-2 py-3">
-					<span class="block text-4xl font-extrabold text-sol-400">{x.n}</span>
-					<span class="block text-sm font-semibold">{x.texto}</span>
-				</li>
-			{/each}
-		</ul>
+		{#if ambientes.length}
+			<ul class="grid grid-cols-3 gap-2 text-center">
+				{#each ambientes as x (x.texto)}
+					<li class="rounded-2xl bg-white/10 px-2 py-3">
+						<span class="block text-4xl font-extrabold text-sol-400">{x.n}</span>
+						<span class="block text-sm font-semibold">{x.texto}</span>
+					</li>
+				{/each}
+			</ul>
+		{/if}
 	</section>
 
 	{#if a.descripcion || editando}
@@ -242,31 +259,40 @@
 		</section>
 	{/if}
 
-	<section class="tarjeta space-y-1 text-sm">
-		<div class="mb-2 flex items-center justify-between gap-3">
-			<h2 class="font-bold">Condiciones</h2>
-			{@render lapizDe('condiciones', 'las condiciones')}
-		</div>
-		<p>Mascotas: <strong>{etiqueta(MASCOTAS, a.mascotas)}</strong></p>
-		{#if amoblado}<p>Amoblado: <strong>{amoblado}</strong></p>{/if}
-		{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
-		{#if garantias.length || a.meses_deposito || editando}
-			<div class="flex items-center justify-between gap-3 pt-1">
-				<div class="space-y-1">
-					{#if garantias.length}<p>Requisitos: <strong>{garantias.join(', ')}</strong></p>{/if}
-					{#if a.meses_deposito}
-						<p>
-							Depósito: <strong>{a.meses_deposito} mes{a.meses_deposito === 1 ? '' : 'es'}</strong>
-						</p>
-					{/if}
-					{#if editando && !garantias.length && !a.meses_deposito}
-						<p class="text-slate-500 italic">Sin requisitos ni depósito.</p>
-					{/if}
-				</div>
-				{@render lapizDe('requisitos', 'los requisitos y el depósito')}
+	{#if hayCondiciones}
+		<section class="tarjeta space-y-1 text-sm">
+			<div class="mb-2 flex items-center justify-between gap-3">
+				<h2 class="font-bold">Condiciones</h2>
+				{@render lapizDe('condiciones', 'las condiciones')}
 			</div>
-		{/if}
-	</section>
+			{#each condiciones as x (x.nombre)}
+				<p>{x.nombre}: <strong>{x.valor}</strong></p>
+			{/each}
+			{#if editando && !condiciones.length}
+				<p class="text-slate-500 italic">Sin mascotas, menores ni fumadores respondidos.</p>
+			{/if}
+			{#if amoblado}<p>Amoblado: <strong>{amoblado}</strong></p>{/if}
+			{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
+			{#if garantias.length || a.meses_deposito || editando}
+				<div class="flex items-center justify-between gap-3 pt-1">
+					<div class="space-y-1">
+						{#if garantias.length}<p>Requisitos: <strong>{garantias.join(', ')}</strong></p>{/if}
+						{#if a.meses_deposito}
+							<p>
+								Depósito: <strong>
+									{a.meses_deposito} mes{a.meses_deposito === 1 ? '' : 'es'}
+								</strong>
+							</p>
+						{/if}
+						{#if editando && !garantias.length && !a.meses_deposito}
+							<p class="text-slate-500 italic">Sin requisitos ni depósito.</p>
+						{/if}
+					</div>
+					{@render lapizDe('requisitos', 'los requisitos y el depósito')}
+				</div>
+			{/if}
+		</section>
+	{/if}
 
 	{#if a.lat_publica != null && a.lng_publica != null}
 		<section class="space-y-2">
