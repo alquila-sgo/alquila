@@ -39,32 +39,51 @@
 				<!-- Tocar la tarjeta lleva directo a editar. -->
 				<a
 					href={resolve('/mis-avisos/[id]/editar', { id: a.id })}
-					class="flex gap-3 p-3 transition hover:bg-slate-50"
+					class="block p-3 transition hover:bg-slate-50"
 				>
-					{#if a.portada}
-						<img
-							src="/fotos/{a.portada}"
-							alt=""
-							class="h-24 w-24 shrink-0 rounded-xl object-cover"
-							loading="lazy"
-						/>
-					{:else}
-						<div
-							class="grid h-24 w-24 shrink-0 place-items-center rounded-xl bg-slate-100 text-xs text-slate-500"
-						>
-							Sin fotos
+					<div class="flex gap-3">
+						{#if a.portada}
+							<img
+								src="/fotos/{a.portada}"
+								alt=""
+								class="h-24 w-24 shrink-0 rounded-xl object-cover"
+								loading="lazy"
+							/>
+						{:else}
+							<div
+								class="grid h-24 w-24 shrink-0 place-items-center rounded-xl bg-slate-100 text-xs text-slate-500"
+							>
+								Sin fotos
+							</div>
+						{/if}
+						<div class="min-w-0 flex-1 space-y-1">
+							<p class="line-clamp-2 leading-snug font-semibold">{a.titulo}</p>
+							<span
+								class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold {a.vencido
+									? 'bg-red-50 text-red-700'
+									: (color[a.estado] ?? 'bg-slate-100 text-slate-600')}"
+							>
+								{a.vencido ? 'Vencido' : (ESTADOS[a.estado] ?? a.estado)}
+							</span>
 						</div>
-					{/if}
-					<div class="min-w-0 flex-1 space-y-1">
-						<p class="line-clamp-2 leading-snug font-semibold">{a.titulo}</p>
-						<span
-							class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold {a.vencido
-								? 'bg-red-50 text-red-700'
-								: (color[a.estado] ?? 'bg-slate-100 text-slate-600')}"
-						>
-							{a.vencido ? 'Vencido' : (ESTADOS[a.estado] ?? a.estado)}
-						</span>
 					</div>
+					<span
+						class="mt-2 flex items-center justify-center gap-1.5 text-sm font-semibold text-marca-700"
+					>
+						<svg
+							viewBox="0 0 24 24"
+							class="h-4 w-4"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							aria-hidden="true"
+						>
+							<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4Z" /><path d="m13.5 6.5 4 4" />
+						</svg>
+						Editar
+					</span>
 				</a>
 				<div class="grid grid-cols-2 divide-x divide-slate-200 border-t border-slate-200 text-sm">
 					<form
