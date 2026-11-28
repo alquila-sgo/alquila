@@ -1,6 +1,5 @@
 <script lang="ts">
 	import {
-		AMUEBLADO,
 		GARANTIAS,
 		CONDICIONES,
 		SI_NO,
@@ -77,20 +76,27 @@
 	);
 	const garantias = $derived(a.garantias.map((g) => etiqueta(GARANTIAS, g)).filter(Boolean));
 	const editando = $derived(!!lapiz);
-	const amoblado = $derived(etiqueta(AMUEBLADO, a.amueblado));
 	// Solo las que respondió con sí o no ('consultar' de avisos viejos no se muestra).
 	const condiciones = $derived(
 		CONDICIONES.map(([c, , nombre]) => ({ nombre, valor: etiqueta(SI_NO, a[c]) })).filter(
 			(x) => x.valor
 		)
 	);
+	// Primer ítem de Servicios.
+	const textoAmoblado = $derived(
+		a.amueblado === 'si'
+			? 'Amoblado'
+			: a.amueblado === 'parcial'
+				? 'Amoblado parcial'
+				: a.amueblado === 'no'
+					? 'Sin amoblar'
+					: ''
+	);
+	const itemsServicios = $derived(
+		[textoAmoblado, ...servicios, a.otros_servicios ?? ''].filter(Boolean)
+	);
 	const hayCondiciones = $derived(
-		condiciones.length ||
-			!!amoblado ||
-			!!a.requisitos ||
-			garantias.length ||
-			!!a.meses_deposito ||
-			editando
+		condiciones.length || !!a.requisitos || garantias.length || !!a.meses_deposito || editando
 	);
 
 	let foto = $state(0);
@@ -262,59 +268,75 @@
 		</div>
 	{/if}
 
-	{#if servicios.length || a.otros_servicios || editando}
-		<section class="tarjeta space-y-2">
-			<div class="flex items-center justify-between gap-3">
-				<h2 class="font-bold">Servicios</h2>
-				{@render lapizDe('servicios', 'los servicios')}
-			</div>
-			<ul class="flex flex-wrap gap-2 text-sm">
-				{#each servicios as s (s)}
-					<li class="rounded-full bg-slate-100 px-3 py-1">{s}</li>
+	<!-- Servicios y Condiciones: desplegables, cerrados por defecto (abiertos al editar). -->
+	{#snippet titulo(texto: string, parte: Parte, nombre: string)}
+		<summary
+			class="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden"
+		>
+			<span class="flex items-center gap-2 text-lg font-bold">
+				<svg
+					viewBox="0 0 24 24"
+					class="h-5 w-5 text-marca-700 transition group-open:rotate-90"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="2.4"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="m9 6 6 6-6 6" />
+				</svg>
+				{texto}
+			</span>
+			{@render lapizDe(parte, nombre)}
+		</summary>
+	{/snippet}
+
+	{#if itemsServicios.length || editando}
+		<details class="tarjeta group" open={editando}>
+			{@render titulo('Servicios', 'servicios', 'los servicios')}
+			<ul class="mt-3 space-y-1 text-sm">
+				{#each itemsServicios as s (s)}
+					<li>– {s}</li>
 				{/each}
-				{#if a.otros_servicios}<li class="rounded-full bg-slate-100 px-3 py-1">
-						{a.otros_servicios}
-					</li>{/if}
-				{#if !servicios.length && !a.otros_servicios}
+				{#if !itemsServicios.length}
 					<li class="text-slate-500 italic">Ninguno marcado.</li>
 				{/if}
 			</ul>
-		</section>
+		</details>
 	{/if}
 
 	{#if hayCondiciones}
-		<section class="tarjeta space-y-1 text-sm">
-			<div class="mb-2 flex items-center justify-between gap-3">
-				<h2 class="font-bold">Condiciones</h2>
-				{@render lapizDe('condiciones', 'las condiciones')}
-			</div>
-			{#each condiciones as x (x.nombre)}
-				<p>{x.nombre}: <strong>{x.valor}</strong></p>
-			{/each}
-			{#if editando && !condiciones.length}
-				<p class="text-slate-500 italic">Sin mascotas, estudiantes ni fumadores respondidos.</p>
-			{/if}
-			{#if amoblado}<p>Amoblado: <strong>{amoblado}</strong></p>{/if}
-			{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
-			{#if garantias.length || a.meses_deposito || editando}
-				<div class="flex items-center justify-between gap-3 pt-1">
-					<div class="space-y-1">
-						{#if garantias.length}<p>Requisitos: <strong>{garantias.join(', ')}</strong></p>{/if}
-						{#if a.meses_deposito}
-							<p>
-								Depósito: <strong>
-									{a.meses_deposito} mes{a.meses_deposito === 1 ? '' : 'es'}
-								</strong>
-							</p>
-						{/if}
-						{#if editando && !garantias.length && !a.meses_deposito}
-							<p class="text-slate-500 italic">Sin requisitos ni depósito.</p>
-						{/if}
+		<details class="tarjeta group" open={editando}>
+			{@render titulo('Condiciones', 'condiciones', 'las condiciones')}
+			<div class="mt-3 space-y-1 text-sm">
+				{#each condiciones as x (x.nombre)}
+					<p>{x.nombre}: <strong>{x.valor}</strong></p>
+				{/each}
+				{#if editando && !condiciones.length}
+					<p class="text-slate-500 italic">Sin mascotas, estudiantes ni fumadores respondidos.</p>
+				{/if}
+				{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
+				{#if garantias.length || a.meses_deposito || editando}
+					<div class="flex items-center justify-between gap-3 pt-1">
+						<div class="space-y-1">
+							{#if garantias.length}<p>Requisitos: <strong>{garantias.join(', ')}</strong></p>{/if}
+							{#if a.meses_deposito}
+								<p>
+									Depósito: <strong>
+										{a.meses_deposito} mes{a.meses_deposito === 1 ? '' : 'es'}
+									</strong>
+								</p>
+							{/if}
+							{#if editando && !garantias.length && !a.meses_deposito}
+								<p class="text-slate-500 italic">Sin requisitos ni depósito.</p>
+							{/if}
+						</div>
+						{@render lapizDe('requisitos', 'los requisitos y el depósito')}
 					</div>
-					{@render lapizDe('requisitos', 'los requisitos y el depósito')}
-				</div>
-			{/if}
-		</section>
+				{/if}
+			</div>
+		</details>
 	{/if}
 
 	{#if a.lat_publica != null && a.lng_publica != null}
