@@ -24,6 +24,7 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 	return {
 		titulo: texto(f, 'titulo'),
 		tipo_propiedad: texto(f, 'tipo_propiedad'),
+		tipo_otro: texto(f, 'tipo_otro'),
 		localidad_id: texto(f, 'localidad_id'),
 		localidad_otra: texto(f, 'localidad_otra'),
 		barrio: texto(f, 'barrio'),
@@ -93,6 +94,10 @@ export function validarAviso(
 	// 'duplex' ya no se ofrece, pero los avisos viejos lo pueden tener.
 	if (![...valoresDe(TIPOS_PROPIEDAD), 'duplex'].includes(v.tipo_propiedad))
 		e.tipo_propiedad = 'Elegí un tipo.';
+	const tipoOtro = v.tipo_propiedad === 'otro' ? v.tipo_otro : '';
+	if (v.tipo_propiedad === 'otro' && tipoOtro.length < 2) {
+		e.tipo_propiedad = 'Escribí qué alquilás.';
+	} else if (tipoOtro.length > 60) e.tipo_propiedad = 'Máximo 60 caracteres.';
 	// Una localidad de la lista o, si eligió "Otra", el nombre que escribió.
 	const localidad = entero(v.localidad_id, 1, 1e9) || null;
 	const otra = localidad ? '' : v.localidad_otra;
@@ -180,6 +185,7 @@ export function validarAviso(
 			aviso: {
 				titulo: v.titulo,
 				tipo_propiedad: v.tipo_propiedad,
+				tipo_otro: tipoOtro || null,
 				localidad_id: localidad,
 				localidad_otra: otra || null,
 				barrio: v.barrio || null,
@@ -232,6 +238,7 @@ export function filaAValores(
 	return {
 		titulo: s(a.titulo),
 		tipo_propiedad: s(a.tipo_propiedad),
+		tipo_otro: s(a.tipo_otro),
 		localidad_id: s(a.localidad_id),
 		localidad_otra: s(a.localidad_otra),
 		barrio: s(a.barrio),

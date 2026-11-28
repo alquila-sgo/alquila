@@ -48,7 +48,11 @@
 		[a.barrio, a.localidades?.nombre ?? a.localidad_otra].filter(Boolean).join(', ')
 	);
 	const tipo = $derived(
-		a.tipo_propiedad === 'duplex' ? 'Dúplex' : etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad)
+		a.tipo_propiedad === 'duplex'
+			? 'Dúplex'
+			: a.tipo_propiedad === 'otro' && a.tipo_otro
+				? a.tipo_otro
+				: etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad)
 	);
 	// Cuadro destacado: número grande + nombre.
 	const ambientes = $derived(
