@@ -9,7 +9,7 @@
 
 <section class="space-y-6">
 	<div class="space-y-1">
-		<h1 class="text-2xl font-bold">Publicar un aviso</h1>
+		<h1 class="titulo-pagina">Publicar un aviso</h1>
 		<p class="text-sm text-slate-600">Paso 1 de 2: los datos. Después cargás las fotos.</p>
 	</div>
 	<AvisoFormulario

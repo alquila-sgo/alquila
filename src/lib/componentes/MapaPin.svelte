@@ -109,7 +109,7 @@
 	}
 </script>
 
-<div class="relative overflow-hidden rounded-lg border border-slate-300">
+<div class="relative overflow-hidden rounded-2xl border border-slate-200">
 	<div bind:this={contenedor} class="h-72 w-full bg-slate-100"></div>
 	{#if error}
 		<p class="absolute inset-0 grid place-items-center bg-white/90 p-4 text-center text-sm">

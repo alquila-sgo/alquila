@@ -35,8 +35,8 @@
 	});
 	let enviando = $state(false);
 
-	const campo = 'w-full rounded-lg border-slate-300';
-	const etiqueta = 'text-sm font-medium';
+	const campo = 'campo';
+	const etiqueta = 'etiqueta';
 </script>
 
 {#snippet err(clave: string)}
@@ -54,8 +54,8 @@
 		};
 	}}
 >
-	<fieldset class="space-y-4">
-		<legend class="text-lg font-semibold">La propiedad</legend>
+	<fieldset class="tarjeta space-y-4">
+		<legend class="text-lg font-bold">La propiedad</legend>
 
 		<label class="block space-y-1">
 			<span class={etiqueta}>Título del aviso</span>
@@ -164,8 +164,8 @@
 		</div>
 	</fieldset>
 
-	<fieldset class="space-y-4">
-		<legend class="text-lg font-semibold">Ubicación</legend>
+	<fieldset class="tarjeta space-y-4">
+		<legend class="text-lg font-bold">Ubicación</legend>
 
 		<label class="block space-y-1">
 			<span class={etiqueta}>Localidad</span>
@@ -210,8 +210,8 @@
 		</label>
 	</fieldset>
 
-	<fieldset class="space-y-4">
-		<legend class="text-lg font-semibold">Precio</legend>
+	<fieldset class="tarjeta space-y-4">
+		<legend class="text-lg font-bold">Precio</legend>
 
 		<label class="flex items-center gap-2">
 			<input type="checkbox" name="consultar_precio" bind:checked={v.consultar_precio} />
@@ -273,8 +273,8 @@
 		</label>
 	</fieldset>
 
-	<fieldset class="space-y-4">
-		<legend class="text-lg font-semibold">Condiciones</legend>
+	<fieldset class="tarjeta space-y-4">
+		<legend class="text-lg font-bold">Condiciones</legend>
 
 		<div class="grid grid-cols-2 gap-3">
 			<label class="block space-y-1">
@@ -330,8 +330,8 @@
 		</label>
 	</fieldset>
 
-	<fieldset class="space-y-2">
-		<legend class="text-lg font-semibold">Cómo te contactan</legend>
+	<fieldset class="tarjeta space-y-2">
+		<legend class="text-lg font-bold">Cómo te contactan</legend>
 		<label class="flex items-center gap-2">
 			<input type="checkbox" name="contacto_whatsapp" bind:checked={v.contacto_whatsapp} />
 			WhatsApp (se muestra solo a personas con cuenta)
@@ -344,14 +344,11 @@
 	</fieldset>
 
 	{#if Object.keys(errores).length}
-		<p class="rounded-lg bg-red-50 p-3 text-sm text-red-800">Revisá los campos marcados en rojo.</p>
+		<p class="aviso-error">Revisá los campos marcados en rojo.</p>
 	{/if}
-	{#if mensaje}<p class="rounded-lg bg-red-50 p-3 text-sm text-red-800">{mensaje}</p>{/if}
+	{#if mensaje}<p class="aviso-error">{mensaje}</p>{/if}
 
-	<button
-		disabled={enviando}
-		class="w-full rounded-lg bg-teal-700 px-4 py-3 font-medium text-white hover:bg-teal-800 disabled:opacity-60"
-	>
+	<button disabled={enviando} class="btn btn-primario w-full">
 		{enviando ? 'Guardando…' : textoBoton}
 	</button>
 </form>
