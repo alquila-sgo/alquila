@@ -1,4 +1,5 @@
 import { createServerClient } from '@supabase/ssr';
+import { createClient } from '@supabase/supabase-js';
 import type { Cookies } from '@sveltejs/kit';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$app/env/public';
 
@@ -32,4 +33,15 @@ export function destinoSeguro(next: string | null | undefined, porDefecto = '/')
 		return porDefecto;
 	}
 	return next;
+}
+
+/**
+ * Cliente solo para mandar el mail de verificación con el flujo "implicit": el enlace
+ * devuelve la sesión en la dirección (#access_token…), así que sirve desde cualquier
+ * dispositivo. (El flujo normal, PKCE, solo funciona en el mismo navegador que lo pidió.)
+ */
+export function crearClienteParaEnlace() {
+	return createClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
+		auth: { flowType: 'implicit', persistSession: false, autoRefreshToken: false }
+	});
 }

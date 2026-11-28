@@ -29,5 +29,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 			redirect(303, next);
 		}
 	}
+	// Enlace del mail (flujo implicit): la sesión viene después del # y el servidor no
+	// la ve. El navegador conserva el # al redirigir, así que /clave la recibe.
+	if (next.startsWith('/clave')) redirect(303, next);
 	redirect(303, '/ingresar?error=enlace');
 };

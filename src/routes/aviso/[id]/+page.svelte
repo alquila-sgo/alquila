@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import { pushState } from '$app/navigation';
+	import { page } from '$app/state';
 	import { AMUEBLADO, GARANTIAS, MASCOTAS, SERVICIOS, TIPOS_PROPIEDAD } from '#lib/avisos.js';
 	import MapaPin from '#lib/componentes/MapaPin.svelte';
 	import VisorFotos from '#lib/componentes/VisorFotos.svelte';
@@ -32,7 +34,8 @@
 	const amoblado = $derived(etiqueta(AMUEBLADO, a.amueblado));
 
 	let foto = $state(0);
-	let visor = $state<number | null>(null);
+	// El visor abierto vive en el historial: el botón Atrás lo cierra y queda en el aviso.
+	const visor = $derived(page.state.visor ?? null);
 	function alDeslizar(ev: Event) {
 		const el = ev.currentTarget as HTMLElement;
 		foto = Math.round(el.scrollLeft / el.clientWidth);
@@ -45,7 +48,7 @@
 	<VisorFotos
 		fotos={a.fotos.map((f) => `/fotos/${f.clave}`)}
 		inicio={visor}
-		oncerrar={() => (visor = null)}
+		oncerrar={() => history.back()}
 	/>
 {/if}
 
@@ -74,7 +77,7 @@
 						type="button"
 						class="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden bg-slate-900"
 						aria-label="Ver foto {i + 1} en pantalla completa"
-						onclick={() => (visor = i)}
+						onclick={() => pushState('', { visor: i })}
 					>
 						<img
 							src="/fotos/{f.clave}"
