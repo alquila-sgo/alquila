@@ -3,7 +3,7 @@
  * (lado mayor 1600 px, siempre JPEG). Ahorra datos en zonas con mala señal.
  */
 export async function comprimirFoto(archivo: File, ladoMax = 1600): Promise<Blob> {
-	const bitmap = await createImageBitmap(archivo, { imageOrientation: 'from-image' });
+	const bitmap = await abrirFoto(archivo);
 	const escala = Math.min(1, ladoMax / Math.max(bitmap.width, bitmap.height));
 	const ancho = Math.round(bitmap.width * escala);
 	const alto = Math.round(bitmap.height * escala);
@@ -23,4 +23,23 @@ export async function comprimirFoto(archivo: File, ladoMax = 1600): Promise<Blob
 	const jpeg = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, 'image/jpeg', 0.85));
 	if (!jpeg) throw new Error('No se pudo comprimir la foto');
 	return jpeg;
+}
+
+const pareceHeic = (f: File) => /\.hei[cf]$/i.test(f.name) || /hei[cf]/i.test(f.type);
+
+/**
+ * Abre cualquier foto. Las HEIC (muchos Android y iPhone) el navegador no las sabe
+ * leer: se decodifican con heic-to, que se descarga solo cuando hace falta.
+ */
+async function abrirFoto(archivo: File): Promise<ImageBitmap> {
+	if (!pareceHeic(archivo)) {
+		try {
+			return await createImageBitmap(archivo, { imageOrientation: 'from-image' });
+		} catch {
+			// Puede ser una HEIC con otro nombre: se prueba abajo.
+		}
+	}
+	const { heicTo, isHeic } = await import('heic-to');
+	if (!(await isHeic(archivo))) throw new Error('Formato de foto no soportado');
+	return heicTo({ blob: archivo, type: 'bitmap', options: { imageOrientation: 'from-image' } });
 }

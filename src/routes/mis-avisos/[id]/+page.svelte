@@ -43,10 +43,7 @@
 					break;
 				}
 			} catch {
-				errorFotos =
-					/\.hei[cf]$/i.test(archivo.name) || /hei[cf]/i.test(archivo.type)
-						? 'Las fotos HEIC todavía no se pueden subir. Elegí otra o cambiá la cámara a JPG.'
-						: `No se pudo leer "${archivo.name}". Probá con otra foto.`;
+				errorFotos = `No se pudo leer "${archivo.name}". Probá con otra foto.`;
 				break;
 			}
 		}

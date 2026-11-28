@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import { AMUEBLADO, GARANTIAS, MASCOTAS, SERVICIOS, TIPOS_PROPIEDAD } from '#lib/avisos.js';
 	import MapaPin from '#lib/componentes/MapaPin.svelte';
+	import VisorFotos from '#lib/componentes/VisorFotos.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -31,6 +32,7 @@
 	const amoblado = $derived(etiqueta(AMUEBLADO, a.amueblado));
 
 	let foto = $state(0);
+	let visor = $state<number | null>(null);
 	function alDeslizar(ev: Event) {
 		const el = ev.currentTarget as HTMLElement;
 		foto = Math.round(el.scrollLeft / el.clientWidth);
@@ -38,6 +40,14 @@
 </script>
 
 <svelte:head><title>{a.titulo} · Alquilá Sgo</title></svelte:head>
+
+{#if visor !== null}
+	<VisorFotos
+		fotos={a.fotos.map((f) => `/fotos/${f.clave}`)}
+		inicio={visor}
+		oncerrar={() => (visor = null)}
+	/>
+{/if}
 
 <article class="space-y-5 pb-24">
 	{#if data.esMio}
@@ -59,12 +69,27 @@
 				onscroll={alDeslizar}
 			>
 				{#each a.fotos as f, i (f.id)}
-					<img
-						src="/fotos/{f.clave}"
-						alt="Foto {i + 1} de {a.fotos.length}"
-						class="aspect-[4/3] w-full shrink-0 snap-center object-cover"
-						loading={i === 0 ? 'eager' : 'lazy'}
-					/>
+					<!-- Foto entera dentro del marco; el fondo es la misma foto desenfocada. -->
+					<button
+						type="button"
+						class="relative aspect-[4/3] w-full shrink-0 snap-center overflow-hidden bg-slate-900"
+						aria-label="Ver foto {i + 1} en pantalla completa"
+						onclick={() => (visor = i)}
+					>
+						<img
+							src="/fotos/{f.clave}"
+							alt=""
+							aria-hidden="true"
+							class="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-xl"
+							loading={i === 0 ? 'eager' : 'lazy'}
+						/>
+						<img
+							src="/fotos/{f.clave}"
+							alt="Foto {i + 1} de {a.fotos.length}"
+							class="relative h-full w-full object-contain"
+							loading={i === 0 ? 'eager' : 'lazy'}
+						/>
+					</button>
 				{/each}
 			</div>
 			<span

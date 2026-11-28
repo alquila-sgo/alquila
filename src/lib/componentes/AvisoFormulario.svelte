@@ -6,6 +6,7 @@
 	import PantallaPasos from './pasos/PantallaPasos.svelte';
 	import {
 		AMUEBLADO,
+		formatearMiles,
 		GARANTIAS,
 		MASCOTAS,
 		SERVICIOS,
@@ -432,6 +433,7 @@
 				name="precio"
 				inputmode="decimal"
 				bind:value={v.precio}
+				oninput={() => (v.precio = formatearMiles(v.precio))}
 				disabled={v.consultar_precio}
 				placeholder="350.000"
 				aria-label="Precio mensual"
@@ -479,6 +481,7 @@
 						name="expensas"
 						inputmode="decimal"
 						bind:value={v.expensas}
+						oninput={() => (v.expensas = formatearMiles(v.expensas))}
 						placeholder="Ej: 25.000"
 						class="campo py-3.5 text-lg"
 					/>

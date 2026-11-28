@@ -22,6 +22,11 @@
 }
 
 @layer base {
+	/* Portada: nada se desliza, tampoco el "rebote" de la app instalada. */
+	html.sin-scroll,
+	html.sin-scroll body {
+		@apply h-full overflow-hidden overscroll-none;
+	}
 	body {
 		@apply bg-crema text-slate-900 antialiased;
 	}
