@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import favicon from '#lib/assets/favicon.svg';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -8,29 +9,26 @@
 
 <svelte:head><title>Ingresar · Alquilá Sgo</title></svelte:head>
 
-<section class="mx-auto max-w-sm space-y-6">
-	<div class="space-y-1">
-		<h1 class="text-2xl font-bold">Ingresar</h1>
+<section class="tarjeta mx-auto max-w-sm space-y-6">
+	<div class="space-y-2 text-center">
+		<img src={favicon} alt="" class="mx-auto h-12 w-12" />
+		<h1 class="titulo-pagina">¡Hola! Ingresá</h1>
 		<p class="text-slate-600">Para publicar, guardar favoritos y contactar anunciantes.</p>
 	</div>
 
 	{#if data.error === 'enlace'}
-		<p class="rounded-lg bg-red-50 p-3 text-sm text-red-800">
-			El enlace venció o ya se usó. Pedí uno nuevo.
-		</p>
+		<p class="aviso-error">El enlace venció o ya se usó. Pedí uno nuevo.</p>
 	{/if}
 
 	{#if form?.enviado}
-		<p class="rounded-lg bg-teal-50 p-4 text-teal-900">
+		<p class="aviso-ok">
 			Te mandamos un enlace a <strong>{form.enviado}</strong>. Abrilo desde este mismo celular para
 			entrar.
 		</p>
 	{:else}
 		<form method="POST" action="?/google">
 			<input type="hidden" name="next" value={data.next} />
-			<button
-				class="flex w-full items-center justify-center gap-3 rounded-lg border border-slate-300 bg-white px-4 py-3 font-medium hover:bg-slate-50"
-			>
+			<button class="btn btn-secundario flex w-full items-center justify-center gap-3">
 				<svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5">
 					<path
 						fill="#4285F4"
@@ -70,26 +68,23 @@
 		>
 			<input type="hidden" name="next" value={data.next} />
 			<label class="block space-y-1">
-				<span class="text-sm font-medium">Email</span>
+				<span class="etiqueta">Email</span>
 				<input
 					type="email"
 					name="email"
 					required
 					autocomplete="email"
 					value={form?.email ?? ''}
-					class="w-full rounded-lg border-slate-300"
+					class="campo"
 				/>
 			</label>
-			<button
-				disabled={enviando}
-				class="w-full rounded-lg bg-teal-700 px-4 py-3 font-medium text-white hover:bg-teal-800 disabled:opacity-60"
-			>
+			<button disabled={enviando} class="btn btn-primario w-full">
 				{enviando ? 'Enviando…' : 'Enviarme un enlace para entrar'}
 			</button>
 		</form>
 	{/if}
 
 	{#if form?.mensaje}
-		<p class="rounded-lg bg-red-50 p-3 text-sm text-red-800">{form.mensaje}</p>
+		<p class="aviso-error">{form.mensaje}</p>
 	{/if}
 </section>

@@ -10,17 +10,16 @@
 
 <section class="space-y-4">
 	<div class="flex items-center justify-between">
-		<h1 class="text-2xl font-bold">Mis avisos</h1>
-		<a
-			href={resolve('/publicar')}
-			class="rounded-lg bg-teal-700 px-3 py-2 text-sm font-medium text-white"
-		>
-			+ Publicar
-		</a>
+		<h1 class="titulo-pagina">Mis avisos</h1>
+		<a href={resolve('/publicar')} class="btn btn-acento btn-chico"> + Publicar </a>
 	</div>
 
 	{#if data.avisos.length === 0}
-		<p class="text-slate-600">Todavía no publicaste nada.</p>
+		<div class="tarjeta space-y-3 py-10 text-center">
+			<p class="text-lg font-bold">Todavía no publicaste nada</p>
+			<p class="text-slate-600">Publicar es gratis y lo hacés en pocos minutos.</p>
+			<a href={resolve('/publicar')} class="btn btn-acento">Publicar mi primer aviso</a>
+		</div>
 	{/if}
 
 	<ul class="space-y-3">
@@ -28,18 +27,18 @@
 			<li>
 				<a
 					href={resolve('/mis-avisos/[id]', { id: a.id })}
-					class="flex gap-3 rounded-lg border border-slate-200 p-2 hover:bg-slate-50"
+					class="tarjeta flex gap-3 p-3! transition hover:shadow-md"
 				>
 					{#if a.portada}
 						<img
 							src="/fotos/{a.portada}"
 							alt=""
-							class="h-20 w-24 shrink-0 rounded object-cover"
+							class="h-20 w-24 shrink-0 rounded-xl object-cover"
 							loading="lazy"
 						/>
 					{:else}
 						<div
-							class="grid h-20 w-24 shrink-0 place-items-center rounded bg-slate-100 text-xs text-slate-500"
+							class="grid h-20 w-24 shrink-0 place-items-center rounded-xl bg-slate-100 text-xs text-slate-500"
 						>
 							Sin fotos
 						</div>

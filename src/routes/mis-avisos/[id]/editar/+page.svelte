@@ -9,8 +9,8 @@
 <svelte:head><title>Editar aviso · Alquilá Sgo</title></svelte:head>
 
 <section class="space-y-6">
-	<a href={resolve('/mis-avisos/[id]', { id: data.id })} class="text-sm text-teal-700">← Volver</a>
-	<h1 class="text-2xl font-bold">Editar aviso</h1>
+	<a href={resolve('/mis-avisos/[id]', { id: data.id })} class="text-sm text-marca-700">← Volver</a>
+	<h1 class="titulo-pagina">Editar aviso</h1>
 	<AvisoFormulario
 		inicial={form?.valores ?? data.inicial}
 		errores={form?.errores ?? {}}
