@@ -2,6 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { PUBLIC_SUPABASE_URL } from '$app/env/public';
 import { destinoSeguro } from '#lib/server/supabase.js';
 import { texto } from '#lib/formulario.js';
+import { exigirDatos } from '#lib/server/perfil.js';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
@@ -31,25 +32,76 @@ export const actions: Actions = {
 		redirect(303, data.url, { external: [new URL(PUBLIC_SUPABASE_URL).origin] });
 	},
 
+	// Paso 1: el email. Si ya tiene contraseña se la pedimos; si no, mandamos el enlace
+	// de verificación y después de abrirlo crea su contraseña en /clave.
 	email: async ({ locals, url, request }) => {
 		const form = await request.formData();
 		const email = texto(form, 'email').toLowerCase();
-		if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-			return fail(400, { email, mensaje: 'Revisá el email.' });
+		if (!emailValido(email)) return fail(400, { email, mensaje: 'Revisá el email.' });
+
+		const r = await locals.supabase.rpc('estado_email', { p_email: email });
+		const estado: unknown = r.data;
+		if (estado === 'clave') return { email, pideClave: true };
+		return enviarEnlace(locals, url, form, email);
+	},
+
+	clave: async ({ locals, request }) => {
+		const form = await request.formData();
+		const email = texto(form, 'email').toLowerCase();
+		const clave = form.get('clave');
+		if (!emailValido(email) || typeof clave !== 'string' || !clave) {
+			return fail(400, { email, pideClave: true, mensaje: 'Escribí tu contraseña.' });
 		}
-		const { error } = await locals.supabase.auth.signInWithOtp({
+		const { data, error } = await locals.supabase.auth.signInWithPassword({
 			email,
-			options: { emailRedirectTo: urlDeVuelta(url, form) }
+			password: clave
 		});
 		if (error) {
-			return fail(error.status === 429 ? 429 : 500, {
+			return fail(error.status === 429 ? 429 : 400, {
 				email,
+				pideClave: true,
 				mensaje:
 					error.status === 429
-						? 'Pediste muchos enlaces seguidos. Esperá unos minutos.'
-						: 'No pudimos enviar el email. Probá de nuevo.'
+						? 'Muchos intentos seguidos. Esperá unos minutos.'
+						: 'La contraseña no es correcta.'
 			});
 		}
-		return { enviado: email };
+		const next = destinoSeguro(texto(form, 'next'), '/cuenta');
+		await exigirDatos(locals, data.user.id, next);
+		redirect(303, next);
+	},
+
+	// Volver a escribir otro email.
+	cambiar: async ({ request }) => ({ email: texto(await request.formData(), 'email') }),
+
+	// Olvidó la contraseña: el mismo enlace, que lo lleva a crear una nueva.
+	olvide: async ({ locals, url, request }) => {
+		const form = await request.formData();
+		const email = texto(form, 'email').toLowerCase();
+		if (!emailValido(email)) return fail(400, { email, mensaje: 'Revisá el email.' });
+		return enviarEnlace(locals, url, form, email);
 	}
 };
+
+function emailValido(email: string) {
+	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+}
+
+async function enviarEnlace(locals: App.Locals, url: URL, form: FormData, email: string) {
+	const next = destinoSeguro(texto(form, 'next'), '/cuenta');
+	const vuelta = `${url.origin}/auth/callback?next=${encodeURIComponent(`/clave?next=${encodeURIComponent(next)}`)}`;
+	const { error } = await locals.supabase.auth.signInWithOtp({
+		email,
+		options: { emailRedirectTo: vuelta }
+	});
+	if (error) {
+		return fail(error.status === 429 ? 429 : 500, {
+			email,
+			mensaje:
+				error.status === 429
+					? 'Pediste muchos emails seguidos. Esperá unos minutos.'
+					: 'No pudimos enviar el email. Probá de nuevo.'
+		});
+	}
+	return { enviado: email };
+}

@@ -51,7 +51,7 @@ export const LIMITES_PROVINCIA = { latMin: -30.5, latMax: -25.0, lngMin: -65.5, 
 /** Centro de Santiago del Estero capital, para abrir el mapa. */
 export const CENTRO_CAPITAL = { lat: -27.7951, lng: -64.2615 };
 
-export const MIN_FOTOS = 3;
+export const MIN_FOTOS = 1;
 export const MAX_FOTOS = 15;
 
 /** Valores del formulario de aviso (todo como texto, como viene del form). */
