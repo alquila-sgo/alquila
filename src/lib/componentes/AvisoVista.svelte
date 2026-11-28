@@ -1,14 +1,6 @@
 <script lang="ts">
-	import {
-		GARANTIAS,
-		CONDICIONES,
-		SI_NO,
-		SERVICIOS,
-		TIPOS_PROPIEDAD,
-		type AvisoPublico
-	} from '#lib/avisos.js';
+	import { GARANTIAS, SERVICIOS, TIPOS_PROPIEDAD, type AvisoPublico } from '#lib/avisos.js';
 	import MapaPin from '#lib/componentes/MapaPin.svelte';
-	import Personas from '#lib/componentes/Personas.svelte';
 
 	// El aviso tal como lo ven los demás. Con `lapiz`, cada parte suma un lápiz para editarla.
 	let {
@@ -25,7 +17,6 @@
 	type Parte =
 		| 'fotos'
 		| 'tipo'
-		| 'personas'
 		| 'localidad'
 		| 'mapa'
 		| 'privacidad'
@@ -33,7 +24,6 @@
 		| 'servicios'
 		| 'precio'
 		| 'expensas'
-		| 'condiciones'
 		| 'requisitos'
 		| 'titulo'
 		| 'contacto';
@@ -76,12 +66,6 @@
 	);
 	const garantias = $derived(a.garantias.map((g) => etiqueta(GARANTIAS, g)).filter(Boolean));
 	const editando = $derived(!!lapiz);
-	// Solo las que respondió con sí o no ('consultar' de avisos viejos no se muestra).
-	const condiciones = $derived(
-		CONDICIONES.map(([c, , nombre]) => ({ nombre, valor: etiqueta(SI_NO, a[c]) })).filter(
-			(x) => x.valor
-		)
-	);
 	// Primer ítem de Servicios.
 	const textoAmoblado = $derived(
 		a.amueblado === 'si'
@@ -95,8 +79,15 @@
 	const itemsServicios = $derived(
 		[textoAmoblado, ...servicios, a.otros_servicios ?? ''].filter(Boolean)
 	);
-	const hayCondiciones = $derived(
-		condiciones.length || !!a.requisitos || garantias.length || !!a.meses_deposito || editando
+	// Lo que piden para entrar: garantías, depósito y otros requisitos escritos.
+	const itemsRequisitos = $derived(
+		[
+			...garantias,
+			a.meses_deposito
+				? `Depósito: ${a.meses_deposito} mes${a.meses_deposito === 1 ? '' : 'es'}`
+				: '',
+			a.requisitos ?? ''
+		].filter(Boolean)
 	);
 
 	let foto = $state(0);
@@ -197,17 +188,6 @@
 			</p>
 			{@render lapizDe('expensas', 'las expensas')}
 		</div>
-		{#if a.sin_limite_personas || a.max_adultos}
-			<div class="flex items-center justify-between gap-3">
-				<Personas adultos={a.max_adultos} ninos={a.max_ninos} sinLimite={a.sin_limite_personas} />
-				{@render lapizDe('personas', 'el máximo de personas')}
-			</div>
-		{:else if editando}
-			<div class="flex items-center justify-between gap-3 text-sm">
-				<p class="text-slate-500 italic">Sin máximo de personas indicado.</p>
-				{@render lapizDe('personas', 'el máximo de personas')}
-			</div>
-		{/if}
 		{#if lugar}
 			<div class="flex items-center justify-between gap-3">
 				<p class="flex items-center gap-1 text-slate-600">
@@ -306,36 +286,17 @@
 		</details>
 	{/if}
 
-	{#if hayCondiciones}
+	{#if itemsRequisitos.length || editando}
 		<details class="tarjeta group" open={editando}>
-			{@render titulo('Condiciones', 'condiciones', 'las condiciones')}
-			<div class="mt-3 space-y-1 text-sm">
-				{#each condiciones as x (x.nombre)}
-					<p>{x.nombre}: <strong>{x.valor}</strong></p>
+			{@render titulo('Requisitos', 'requisitos', 'los requisitos')}
+			<ul class="mt-3 space-y-1 text-sm">
+				{#each itemsRequisitos as r (r)}
+					<li>– {r}</li>
 				{/each}
-				{#if editando && !condiciones.length}
-					<p class="text-slate-500 italic">Sin mascotas, estudiantes ni fumadores respondidos.</p>
+				{#if !itemsRequisitos.length}
+					<li class="text-slate-500 italic">Sin requisitos.</li>
 				{/if}
-				{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
-				{#if garantias.length || a.meses_deposito || editando}
-					<div class="flex items-center justify-between gap-3 pt-1">
-						<div class="space-y-1">
-							{#if garantias.length}<p>Requisitos: <strong>{garantias.join(', ')}</strong></p>{/if}
-							{#if a.meses_deposito}
-								<p>
-									Depósito: <strong>
-										{a.meses_deposito} mes{a.meses_deposito === 1 ? '' : 'es'}
-									</strong>
-								</p>
-							{/if}
-							{#if editando && !garantias.length && !a.meses_deposito}
-								<p class="text-slate-500 italic">Sin requisitos ni depósito.</p>
-							{/if}
-						</div>
-						{@render lapizDe('requisitos', 'los requisitos y el depósito')}
-					</div>
-				{/if}
-			</div>
+			</ul>
 		</details>
 	{/if}
 
