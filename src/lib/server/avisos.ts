@@ -41,7 +41,10 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		banos: texto(f, 'banos'),
 		superficie_m2: texto(f, 'superficie_m2'),
 		mascotas: texto(f, 'mascotas'),
-		menores: texto(f, 'menores'),
+		estudiantes: texto(f, 'estudiantes'),
+		max_adultos: texto(f, 'max_adultos'),
+		max_ninos: texto(f, 'max_ninos'),
+		sin_limite_personas: marcado('sin_limite_personas'),
 		fumadores: texto(f, 'fumadores'),
 		amueblado: texto(f, 'amueblado'),
 		garantias: varios('garantias', valoresDe(GARANTIAS)),
@@ -134,6 +137,13 @@ export function validarAviso(
 		if (v[c] && !valoresDe(SI_NO).includes(v[c])) e[c] = 'Opción inválida.';
 	}
 	if (v.amueblado && !valoresDe(AMUEBLADO).includes(v.amueblado)) e.amueblado = 'Opción inválida.';
+	// Máximo de personas: o sin límite, o al menos 1 adulto (niños opcional, vacío = 0).
+	const maxAdultos = v.sin_limite_personas ? undefined : entero(v.max_adultos, 1, 20);
+	const maxNinos = v.sin_limite_personas ? undefined : entero(v.max_ninos, 0, 20);
+	if (!v.sin_limite_personas && !maxAdultos) {
+		e.max_adultos = 'Indicá cuántos adultos o marcá "Sin límite de personas".';
+	}
+	if (maxNinos === null) e.max_ninos = 'Entre 0 y 20.';
 	const meses = entero(v.meses_deposito, 0, 12);
 	if (meses === null) e.meses_deposito = 'Entre 0 y 12.';
 	if (v.otros_servicios.length > 200) e.otros_servicios = 'Máximo 200 caracteres.';
@@ -188,7 +198,10 @@ export function validarAviso(
 				banos: banos ?? null,
 				superficie_m2: superficie ?? null,
 				mascotas: v.mascotas || null,
-				menores: v.menores || null,
+				estudiantes: v.estudiantes || null,
+				max_adultos: v.sin_limite_personas ? null : maxAdultos,
+				max_ninos: v.sin_limite_personas ? null : (maxNinos ?? 0),
+				sin_limite_personas: v.sin_limite_personas,
 				fumadores: v.fumadores || null,
 				amueblado: v.amueblado || null,
 				garantias: v.garantias,
@@ -237,7 +250,10 @@ export function filaAValores(
 		superficie_m2: s(a.superficie_m2),
 		// 'consultar' (avisos viejos) cuenta como sin responder.
 		mascotas: a.mascotas === 'consultar' ? '' : s(a.mascotas),
-		menores: a.menores === 'consultar' ? '' : s(a.menores),
+		estudiantes: a.estudiantes === 'consultar' ? '' : s(a.estudiantes),
+		max_adultos: s(a.max_adultos),
+		max_ninos: s(a.max_ninos),
+		sin_limite_personas: a.sin_limite_personas === true,
 		fumadores: a.fumadores === 'consultar' ? '' : s(a.fumadores),
 		amueblado: s(a.amueblado),
 		garantias: Array.isArray(a.garantias) ? (a.garantias as string[]) : [],

@@ -8,7 +8,7 @@ export const TIPOS_PROPIEDAD = [
 	['otro', 'Otro']
 ] as const;
 
-/** Respuestas de las condiciones (mascotas, menores, fumadores). Sin responder = no se muestra. */
+/** Respuestas de las condiciones (mascotas, estudiantes, fumadores). Sin responder = no se muestra. */
 export const SI_NO = [
 	['si', 'Sí'],
 	['no', 'No']
@@ -17,7 +17,7 @@ export const SI_NO = [
 /** Condiciones de sí o no: columna y pregunta. */
 export const CONDICIONES = [
 	['mascotas', '¿Acepta mascotas?', 'Mascotas'],
-	['menores', '¿Acepta menores?', 'Menores'],
+	['estudiantes', '¿Acepta estudiantes?', 'Estudiantes'],
 	['fumadores', '¿Acepta fumadores?', 'Fumadores']
 ] as const;
 
@@ -82,8 +82,11 @@ export interface ValoresAviso {
 	banos: string;
 	superficie_m2: string;
 	mascotas: string;
-	menores: string;
+	estudiantes: string;
 	fumadores: string;
+	max_adultos: string;
+	max_ninos: string;
+	sin_limite_personas: boolean;
 	amueblado: string;
 	garantias: string[];
 	meses_deposito: string;
@@ -119,8 +122,11 @@ export const VALORES_VACIOS: ValoresAviso = {
 	banos: '1',
 	superficie_m2: '',
 	mascotas: '',
-	menores: '',
+	estudiantes: '',
 	fumadores: '',
+	max_adultos: '',
+	max_ninos: '',
+	sin_limite_personas: false,
 	amueblado: 'no',
 	garantias: [],
 	meses_deposito: '',
@@ -185,8 +191,11 @@ export interface AvisoPublico {
 	banos: number | null;
 	superficie_m2: number | null;
 	mascotas: string | null;
-	menores: string | null;
+	estudiantes: string | null;
 	fumadores: string | null;
+	max_adultos: number | null;
+	max_ninos: number | null;
+	sin_limite_personas: boolean;
 	amueblado: string | null;
 	garantias: string[];
 	meses_deposito: number | null;

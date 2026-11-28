@@ -4,6 +4,7 @@
 	import MapaPin from './MapaPin.svelte';
 	import Contador from './pasos/Contador.svelte';
 	import PantallaPasos from './pasos/PantallaPasos.svelte';
+	import Personas from './Personas.svelte';
 	import {
 		AMUEBLADO,
 		formatearMiles,
@@ -108,6 +109,14 @@
 	const PASOS: { titulo: string; ayuda?: string; campos: string[]; chequeo: () => string }[] = [
 		{ titulo: '¿Qué vas a alquilar?', campos: ['tipo_propiedad'], chequeo: () => '' },
 		{
+			titulo: '¿Cuántas personas como máximo?',
+			campos: ['max_adultos', 'max_ninos'],
+			chequeo: () =>
+				v.sin_limite_personas || Number(v.max_adultos) >= 1
+					? ''
+					: 'Indicá cuántos adultos o elegí "Sin límite de personas".'
+		},
+		{
 			titulo: '¿En qué localidad está?',
 			campos: ['localidad_id', 'localidad_otra', 'barrio'],
 			chequeo: () =>
@@ -160,7 +169,7 @@
 		{
 			titulo: 'Condiciones',
 			ayuda: 'Ninguna es obligatoria. Tocá de nuevo para dejarla sin responder.',
-			campos: ['mascotas', 'menores', 'fumadores', 'requisitos'],
+			campos: ['mascotas', 'estudiantes', 'fumadores', 'requisitos'],
 			chequeo: () => ''
 		},
 		{
@@ -188,10 +197,14 @@
 	// llegar a ese paso, mientras la persona no lo haya cambiado a mano.
 	let tituloEditado = $state(untrack(() => !!inicial.titulo));
 	const tituloSugerido = $derived.by(() => {
-		const tipo = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
+		// Abreviado: "Depto, 2 dorm, ~30 m²".
+		const nombre = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
+		const tipo = v.tipo_propiedad === 'departamento' ? 'Depto' : nombre;
 		const d = Number(v.dormitorios);
-		const conDormitorios = !['monoambiente', 'habitacion'].includes(v.tipo_propiedad) && d > 0;
-		return conDormitorios ? `${tipo}, ${d} dormitorio${d === 1 ? '' : 's'}` : tipo;
+		const m2 = Number(v.superficie_m2);
+		return [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : '']
+			.filter(Boolean)
+			.join(', ');
 	});
 	$effect(() => {
 		if (actual.campos.includes('titulo') && !tituloEditado) v.titulo = tituloSugerido;
@@ -291,8 +304,45 @@
 			{/each}
 		</div>
 
-		<!-- 2. Localidad -->
+		<!-- 2. Máximo de personas -->
 		<div hidden={paso !== 1} class="space-y-4">
+			<label class={opcion}>
+				<input
+					type="checkbox"
+					name="sin_limite_personas"
+					bind:checked={v.sin_limite_personas}
+					class="h-5 w-5"
+				/>
+				Sin límite de personas
+			</label>
+			{#if !v.sin_limite_personas}
+				<div class="divide-y divide-slate-200">
+					<Contador
+						nombre="max_adultos"
+						etiqueta="Adultos"
+						bind:valor={v.max_adultos}
+						min={1}
+						inicio={2}
+					/>
+					<Contador nombre="max_ninos" etiqueta="Niños" bind:valor={v.max_ninos} max={20} />
+				</div>
+			{/if}
+			<div class="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+				<p class="mb-2 text-xs font-bold tracking-wider text-slate-500 uppercase">Así se ve</p>
+				{#if v.sin_limite_personas || Number(v.max_adultos) >= 1}
+					<Personas
+						adultos={Number(v.max_adultos)}
+						ninos={Number(v.max_ninos) || 0}
+						sinLimite={v.sin_limite_personas}
+					/>
+				{:else}
+					<p class="text-sm text-slate-500">Tocá + en Adultos.</p>
+				{/if}
+			</div>
+		</div>
+
+		<!-- 3. Localidad -->
+		<div hidden={paso !== 2} class="space-y-4">
 			<div class="grid grid-cols-2 gap-2.5">
 				{#each [...principales, { id: 'otro', texto: 'Otra' }] as p (p.id)}
 					<label
@@ -341,15 +391,15 @@
 			</label>
 		</div>
 
-		<!-- 3. Mapa (se monta solo al llegar, para que tome bien el tamaño) -->
-		{#if paso === 2}
+		<!-- 4. Mapa (se monta solo al llegar, para que tome bien el tamaño) -->
+		{#if paso === 3}
 			<MapaPin bind:lat={v.lat} bind:lng={v.lng} alto="min-h-0 flex-1" />
 		{/if}
 		<input type="hidden" name="lat" value={v.lat} />
 		<input type="hidden" name="lng" value={v.lng} />
 
-		<!-- 4. Privacidad -->
-		<div hidden={paso !== 3} class="space-y-3">
+		<!-- 5. Privacidad -->
+		<div hidden={paso !== 4} class="space-y-3">
 			<label class={opcion}>
 				<input type="radio" bind:group={v.mostrar_exacta} value={false} class="h-5 w-5" />
 				<span>
@@ -368,8 +418,8 @@
 			<input type="hidden" name="direccion" value={v.direccion} />
 		</div>
 
-		<!-- 5. Ambientes -->
-		<div hidden={paso !== 4} class="divide-y divide-slate-200">
+		<!-- 6. Ambientes -->
+		<div hidden={paso !== 5} class="divide-y divide-slate-200">
 			<!-- Monoambiente o habitación: solo se pregunta la superficie. -->
 			{#if esMono}
 				<input type="hidden" name="cocina" value="0" />
@@ -402,8 +452,8 @@
 			/>
 		</div>
 
-		<!-- 6. Comodidades -->
-		<div hidden={paso !== 5} class="space-y-4">
+		<!-- 7. Comodidades -->
+		<div hidden={paso !== 6} class="space-y-4">
 			<div class="flex flex-wrap content-start gap-2.5">
 				{#each SERVICIOS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -446,8 +496,8 @@
 			</fieldset>
 		</div>
 
-		<!-- 7. Precio -->
-		<div hidden={paso !== 6} class="space-y-5">
+		<!-- 8. Precio -->
+		<div hidden={paso !== 7} class="space-y-5">
 			<div class="flex rounded-2xl bg-slate-200/70 p-1 font-semibold">
 				{#each [['ARS', '$ Pesos'], ['USD', 'US$ Dólares']] as [valor, texto] (valor)}
 					<label
@@ -486,8 +536,8 @@
 			</label>
 		</div>
 
-		<!-- 8. Expensas y ajuste -->
-		<div hidden={paso !== 7} class="space-y-5">
+		<!-- 9. Expensas y ajuste -->
+		<div hidden={paso !== 8} class="space-y-5">
 			<p class="etiqueta">¿Cobrás expensas?</p>
 			<div class="grid grid-cols-2 gap-2.5">
 				{#each [['si', 'Sí'], ['no', 'No']] as [valor, texto] (valor)}
@@ -525,8 +575,8 @@
 			{/if}
 		</div>
 
-		<!-- 9. Condiciones -->
-		<div hidden={paso !== 8} class="space-y-5">
+		<!-- 10. Condiciones -->
+		<div hidden={paso !== 9} class="space-y-5">
 			{#each CONDICIONES as [campo, pregunta] (campo)}
 				<div class="flex items-center justify-between gap-3">
 					<span class="font-semibold">{pregunta}</span>
@@ -562,8 +612,8 @@
 			</label>
 		</div>
 
-		<!-- 10. Requisitos -->
-		<div hidden={paso !== 9} class="space-y-3">
+		<!-- 11. Requisitos -->
+		<div hidden={paso !== 10} class="space-y-3">
 			<div class="flex flex-wrap gap-2">
 				{#each GARANTIAS as [valor, texto] (valor)}
 					<label class={chip}>
@@ -586,8 +636,8 @@
 			/>
 		</div>
 
-		<!-- 11. Título y descripción -->
-		<div hidden={paso !== 10} class="flex min-h-0 flex-1 flex-col gap-4">
+		<!-- 12. Título y descripción -->
+		<div hidden={paso !== 11} class="flex min-h-0 flex-1 flex-col gap-4">
 			<input
 				name="titulo"
 				bind:value={v.titulo}
@@ -611,8 +661,8 @@
 			</div>
 		</div>
 
-		<!-- 12. Contacto -->
-		<div hidden={paso !== 11} class="space-y-3">
+		<!-- 13. Contacto -->
+		<div hidden={paso !== 12} class="space-y-3">
 			<label class={opcion}>
 				<input
 					type="checkbox"

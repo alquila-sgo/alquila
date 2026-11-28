@@ -9,6 +9,7 @@
 		type AvisoPublico
 	} from '#lib/avisos.js';
 	import MapaPin from '#lib/componentes/MapaPin.svelte';
+	import Personas from '#lib/componentes/Personas.svelte';
 
 	// El aviso tal como lo ven los demás. Con `lapiz`, cada parte suma un lápiz para editarla.
 	let {
@@ -25,6 +26,7 @@
 	type Parte =
 		| 'fotos'
 		| 'tipo'
+		| 'personas'
 		| 'localidad'
 		| 'mapa'
 		| 'privacidad'
@@ -179,6 +181,17 @@
 			<h1 class="text-xl leading-snug font-bold">{a.titulo}</h1>
 			{@render lapizDe('titulo', 'el título')}
 		</div>
+		{#if a.sin_limite_personas || a.max_adultos}
+			<div class="flex items-center justify-between gap-3">
+				<Personas adultos={a.max_adultos} ninos={a.max_ninos} sinLimite={a.sin_limite_personas} />
+				{@render lapizDe('personas', 'el máximo de personas')}
+			</div>
+		{:else if editando}
+			<div class="flex items-center justify-between gap-3 text-sm">
+				<p class="text-slate-500 italic">Sin máximo de personas indicado.</p>
+				{@render lapizDe('personas', 'el máximo de personas')}
+			</div>
+		{/if}
 		{#if lugar}
 			<div class="flex items-center justify-between gap-3">
 				<p class="flex items-center gap-1 text-slate-600">
@@ -269,7 +282,7 @@
 				<p>{x.nombre}: <strong>{x.valor}</strong></p>
 			{/each}
 			{#if editando && !condiciones.length}
-				<p class="text-slate-500 italic">Sin mascotas, menores ni fumadores respondidos.</p>
+				<p class="text-slate-500 italic">Sin mascotas, estudiantes ni fumadores respondidos.</p>
 			{/if}
 			{#if amoblado}<p>Amoblado: <strong>{amoblado}</strong></p>{/if}
 			{#if a.requisitos}<p class="text-slate-700">{a.requisitos}</p>{/if}
