@@ -13,6 +13,7 @@
 	errores={form?.errores ?? {}}
 	mensaje={form?.mensaje ?? ''}
 	localidades={data.localidades}
-	textoBoton="Guardar cambios"
-	cerrarHref={resolve('/mis-avisos/[id]', { id: data.id })}
+	textoBoton="Siguiente: fotos"
+	totalPasos={13}
+	cerrarHref={resolve('/mis-avisos')}
 />
