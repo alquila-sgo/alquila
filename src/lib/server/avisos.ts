@@ -42,6 +42,7 @@ export function leerFormularioAviso(f: FormData): ValoresAviso {
 		requisitos: texto(f, 'requisitos'),
 		disponible_desde: texto(f, 'disponible_desde'),
 		servicios: varios('servicios', valoresDe(SERVICIOS)),
+		otros_servicios: texto(f, 'otros_servicios'),
 		contacto_whatsapp: marcado('contacto_whatsapp'),
 		contacto_formulario: marcado('contacto_formulario'),
 		lat: texto(f, 'lat'),
@@ -93,6 +94,9 @@ export function validarAviso(
 	}
 	const expensas = v.sin_expensas ? undefined : monto(v.expensas);
 	if (expensas === null) e.expensas = 'Monto inválido.';
+	else if (!v.sin_expensas && !expensas) {
+		e.expensas = 'Indicá cuánto cobrás de expensas o marcá que no cobrás.';
+	}
 	if (v.ajuste.length > 120) e.ajuste = 'Máximo 120 caracteres.';
 
 	const ambientes = entero(v.ambientes, 1, 20);
@@ -108,6 +112,7 @@ export function validarAviso(
 	if (v.amueblado && !valoresDe(AMUEBLADO).includes(v.amueblado)) e.amueblado = 'Opción inválida.';
 	const meses = entero(v.meses_deposito, 0, 12);
 	if (meses === null) e.meses_deposito = 'Entre 0 y 12.';
+	if (v.otros_servicios.length > 200) e.otros_servicios = 'Máximo 200 caracteres.';
 	if (v.requisitos.length > 500) e.requisitos = 'Máximo 500 caracteres.';
 	if (v.disponible_desde && !/^\d{4}-\d{2}-\d{2}$/.test(v.disponible_desde)) {
 		e.disponible_desde = 'Fecha inválida.';
@@ -161,6 +166,7 @@ export function validarAviso(
 				requisitos: v.requisitos || null,
 				disponible_desde: v.disponible_desde || null,
 				...servicios,
+				otros_servicios: v.otros_servicios || null,
 				contacto_whatsapp: v.contacto_whatsapp,
 				contacto_formulario: v.contacto_formulario
 			},
@@ -203,6 +209,7 @@ export function filaAValores(
 		requisitos: s(a.requisitos),
 		disponible_desde: s(a.disponible_desde),
 		servicios: valoresDe(SERVICIOS).filter((x) => a[x] === true),
+		otros_servicios: s(a.otros_servicios),
 		contacto_whatsapp: a.contacto_whatsapp === true,
 		contacto_formulario: a.contacto_formulario === true,
 		lat: p ? String(p.lat) : '',

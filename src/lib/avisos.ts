@@ -79,6 +79,7 @@ export interface ValoresAviso {
 	requisitos: string;
 	disponible_desde: string;
 	servicios: string[];
+	otros_servicios: string;
 	contacto_whatsapp: boolean;
 	contacto_formulario: boolean;
 	lat: string;
@@ -110,6 +111,7 @@ export const VALORES_VACIOS: ValoresAviso = {
 	requisitos: '',
 	disponible_desde: '',
 	servicios: [],
+	otros_servicios: '',
 	contacto_whatsapp: true,
 	contacto_formulario: true,
 	lat: '',
