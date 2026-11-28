@@ -583,13 +583,7 @@
 			/>
 			<label class="block space-y-2">
 				<span class="etiqueta">Otros requisitos</span>
-				<input
-					name="requisitos"
-					bind:value={v.requisitos}
-					maxlength="500"
-					placeholder="Ej: referencias del alquiler anterior"
-					class="campo py-3"
-				/>
+				<input name="requisitos" bind:value={v.requisitos} maxlength="500" class="campo py-3" />
 			</label>
 		</div>
 
@@ -608,12 +602,12 @@
 				<textarea
 					name="descripcion"
 					bind:value={v.descripcion}
-					maxlength="3000"
-					placeholder="Contá cómo es: luz, ruido, cercanía a colegios, colectivos…"
+					maxlength="1000"
+					placeholder="Escribí una breve descripción"
 					aria-label="Descripción"
 					class="campo min-h-24 flex-1 resize-none"></textarea>
 				<span class="absolute right-3 bottom-2 text-xs text-slate-400">
-					{v.descripcion.length}/3000
+					{v.descripcion.length}/1000
 				</span>
 			</div>
 		</div>

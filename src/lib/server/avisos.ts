@@ -102,8 +102,8 @@ export function validarAviso(
 	if (!localidad && otra.length < 2) e.localidad_id = 'Elegí o escribí la localidad.';
 	else if (otra.length > 80) e.localidad_id = 'Máximo 80 caracteres.';
 	if (v.barrio.length > 80) e.barrio = 'Máximo 80 caracteres.';
-	if (v.descripcion.length > 3000) {
-		e.descripcion = 'Máximo 3000 caracteres.';
+	if (v.descripcion.length > 1000) {
+		e.descripcion = 'Máximo 1000 caracteres.';
 	}
 
 	const precio = monto(v.precio);
