@@ -18,14 +18,18 @@
 	const lugar = $derived(
 		[a.barrio, a.localidades?.nombre ?? a.localidad_otra].filter(Boolean).join(', ')
 	);
-	const datos = $derived(
+	const tipo = $derived(
+		a.tipo_propiedad === 'duplex' ? 'Dúplex' : etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad)
+	);
+	// Cuadro destacado: número grande + nombre.
+	const ambientes = $derived(
 		[
-			a.tipo_propiedad === 'duplex' ? 'Dúplex' : etiqueta(TIPOS_PROPIEDAD, a.tipo_propiedad),
-			`${a.ambientes} amb.`,
-			`${a.dormitorios} dorm.`,
-			a.banos != null && `${a.banos} baño${a.banos === 1 ? '' : 's'}`,
-			a.superficie_m2 && `${a.superficie_m2} m² aprox.`
-		].filter((x): x is string => !!x)
+			{ n: a.ambientes, uno: 'Ambiente', varios: 'Ambientes' },
+			{ n: a.dormitorios, uno: 'Dormitorio', varios: 'Dormitorios' },
+			{ n: a.banos, uno: 'Baño', varios: 'Baños' }
+		]
+			.filter((x): x is { n: number; uno: string; varios: string } => x.n != null)
+			.map((x) => ({ n: String(x.n), texto: x.n === 1 ? x.uno : x.varios }))
 	);
 	const servicios = $derived(
 		SERVICIOS.filter(([k]) => a[k as keyof typeof a] === true).map(([, t]) => t)
@@ -133,11 +137,24 @@
 		{/if}
 	</header>
 
-	<ul class="flex flex-wrap gap-2">
-		{#each datos as d (d)}
-			<li class="rounded-full bg-marca-50 px-3 py-1.5 text-sm font-semibold text-marca-800">{d}</li>
-		{/each}
-	</ul>
+	<section class="rounded-3xl bg-marca-700 p-5 text-white shadow-lg shadow-marca-900/20">
+		<div class="mb-3 flex items-center justify-between gap-2">
+			<h2 class="text-lg font-bold">{tipo}</h2>
+			{#if a.superficie_m2}
+				<span class="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold">
+					{a.superficie_m2} m² aprox.
+				</span>
+			{/if}
+		</div>
+		<ul class="grid grid-cols-3 gap-2 text-center">
+			{#each ambientes as x (x.texto)}
+				<li class="rounded-2xl bg-white/10 px-2 py-3">
+					<span class="block text-4xl font-extrabold text-sol-400">{x.n}</span>
+					<span class="block text-sm font-semibold">{x.texto}</span>
+				</li>
+			{/each}
+		</ul>
+	</section>
 
 	{#if a.descripcion}
 		<p class="whitespace-pre-line text-slate-700">{a.descripcion}</p>
@@ -145,7 +162,7 @@
 
 	{#if servicios.length || a.otros_servicios}
 		<section class="tarjeta space-y-2">
-			<h2 class="font-bold">Tiene</h2>
+			<h2 class="font-bold">Servicios</h2>
 			<ul class="flex flex-wrap gap-2 text-sm">
 				{#each servicios as s (s)}
 					<li class="rounded-full bg-slate-100 px-3 py-1">{s}</li>

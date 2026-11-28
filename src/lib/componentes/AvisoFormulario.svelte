@@ -165,7 +165,7 @@
 		{
 			titulo: 'Ponele nombre y contalo',
 			campos: ['titulo', 'descripcion'],
-			chequeo: () => (v.titulo.trim().length < 10 ? 'El título necesita al menos 10 letras.' : '')
+			chequeo: () => (v.titulo.trim() ? '' : 'Escribí un título.')
 		},
 		{
 			titulo: '¿Cómo te contactan?',
@@ -177,6 +177,19 @@
 	const ultimo = PASOS.length - 1;
 	const total = $derived(totalPasos ?? PASOS.length);
 	const actual = $derived(PASOS[paso]);
+
+	// Título sugerido con lo elegido antes ("Casa, 4 dormitorios"). Se escribe solo al
+	// llegar a ese paso, mientras la persona no lo haya cambiado a mano.
+	let tituloEditado = $state(untrack(() => !!inicial.titulo));
+	const tituloSugerido = $derived.by(() => {
+		const tipo = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
+		const d = Number(v.dormitorios);
+		const conDormitorios = !['monoambiente', 'habitacion'].includes(v.tipo_propiedad) && d > 0;
+		return conDormitorios ? `${tipo}, ${d} dormitorio${d === 1 ? '' : 's'}` : tipo;
+	});
+	$effect(() => {
+		if (actual.campos.includes('titulo') && !tituloEditado) v.titulo = tituloSugerido;
+	});
 
 	// Si el servidor rechaza algo, vamos directo al primer paso con error.
 	$effect(() => {
@@ -548,8 +561,9 @@
 			<input
 				name="titulo"
 				bind:value={v.titulo}
-				maxlength="100"
-				placeholder="Ej: Depto 2 ambientes cerca de la plaza"
+				oninput={() => (tituloEditado = true)}
+				maxlength="200"
+				placeholder="Ej: Casa, 3 dormitorios"
 				aria-label="Título del aviso"
 				class="campo py-3.5 text-lg font-semibold"
 			/>
