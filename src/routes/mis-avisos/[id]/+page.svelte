@@ -13,6 +13,10 @@
 	let subiendo = $state('');
 	let errorFotos = $state('');
 	let festejoVisto = $state(false);
+	let pedirWhatsapp = $state(false);
+	$effect(() => {
+		if (form && 'errorWhatsapp' in form) pedirWhatsapp = true;
+	});
 	const festejar = $derived(!!form && 'publicado' in form && !festejoVisto);
 
 	async function subir(ev: Event) {
@@ -48,7 +52,64 @@
 	}
 
 	const boton = 'btn btn-chico';
+
+	/** Sin WhatsApp en la cuenta: en vez de publicar directo, abre la ventana para cargarlo. */
+	function pedirSiFalta() {
+		if (!data.tieneWhatsapp) pedirWhatsapp = true;
+	}
 </script>
+
+{#if pedirWhatsapp}
+	<div
+		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="titulo-whatsapp"
+	>
+		<form
+			method="POST"
+			action="?/publicar"
+			class="w-full max-w-sm space-y-4 rounded-3xl bg-white p-6 shadow-xl"
+			use:enhance={() =>
+				async ({ update, result }) => {
+					await update({ reset: false });
+					if (result.type === 'success') pedirWhatsapp = false;
+				}}
+		>
+			<div class="flex items-start justify-between gap-3">
+				<h2 id="titulo-whatsapp" class="text-xl font-extrabold">Ingresá tu WhatsApp</h2>
+				<button
+					type="button"
+					class="-m-2 p-2 text-2xl leading-none text-slate-400"
+					aria-label="Cerrar"
+					onclick={() => (pedirWhatsapp = false)}
+				>
+					×
+				</button>
+			</div>
+			<p class="text-sm text-slate-600">
+				Así te escriben los interesados. Queda guardado en tu cuenta.
+			</p>
+			<!-- svelte-ignore a11y_autofocus -->
+			<input
+				name="whatsapp"
+				required
+				autofocus
+				inputmode="tel"
+				autocomplete="tel-national"
+				placeholder="385 4123456"
+				value={form && 'escrito' in form ? form.escrito : ''}
+				class="campo py-3 text-lg"
+			/>
+			{#if form && 'errorWhatsapp' in form}
+				<p class="text-sm text-red-700">{form.errorWhatsapp}</p>
+			{:else}
+				<p class="text-xs text-slate-500">Código de área sin 0 y número sin 15.</p>
+			{/if}
+			<button class="btn btn-acento w-full py-4 text-lg">Guardar y publicar</button>
+		</form>
+	</div>
+{/if}
 
 {#if festejar}
 	<PublicacionExitosa
@@ -140,15 +201,13 @@
 			{#if errorFotos || form?.mensaje}
 				<p class="aviso-error mb-3" role="alert">{errorFotos || form?.mensaje}</p>
 			{/if}
-			{#if !data.tieneWhatsapp}
-				<p class="aviso-alerta mb-3">
-					Falta tu WhatsApp. <a href={resolve('/cuenta')} class="font-semibold underline">
-						Cargalo en Mi cuenta
-					</a>.
-				</p>
-			{/if}
 			<form method="POST" action="?/publicar" use:enhance>
-				<button class="btn btn-acento w-full py-4 text-lg" disabled={faltan > 0 || !!subiendo}>
+				<button
+					type={data.tieneWhatsapp ? 'submit' : 'button'}
+					onclick={pedirSiFalta}
+					class="btn btn-acento w-full py-4 text-lg"
+					disabled={faltan > 0 || !!subiendo}
+				>
 					{faltan > 0 ? `Faltan ${faltan} foto${faltan === 1 ? '' : 's'}` : '¡Publicar aviso!'}
 				</button>
 			</form>
@@ -233,18 +292,16 @@
 			<p class="aviso-error">{form.mensaje}</p>
 		{/if}
 
-		{#if !data.tieneWhatsapp}
-			<p class="aviso-alerta">
-				No cargaste tu WhatsApp. <a href={resolve('/cuenta')} class="underline">
-					Cargalo en Mi cuenta
-				</a> o desactivá ese contacto al editar el aviso.
-			</p>
-		{/if}
-
 		<div class="flex flex-wrap gap-2">
 			{#if a.estado === 'borrador' || a.estado === 'pausado'}
 				<form method="POST" action="?/publicar" use:enhance>
-					<button class="{boton} btn-primario">Publicar</button>
+					<button
+						type={data.tieneWhatsapp ? 'submit' : 'button'}
+						onclick={pedirSiFalta}
+						class="{boton} btn-primario"
+					>
+						Publicar
+					</button>
 				</form>
 			{/if}
 			{#if a.estado === 'publicado'}

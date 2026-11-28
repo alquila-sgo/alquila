@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { mostrarWhatsapp } from '#lib/whatsapp.js';
+	import FotoPerfil from '#lib/componentes/FotoPerfil.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
@@ -11,6 +12,11 @@
 <svelte:head><title>Mi cuenta · Alquilá Sgo</title></svelte:head>
 
 <section class="tarjeta mx-auto max-w-md space-y-6">
+	<FotoPerfil
+		foto={data.usuario?.foto ?? null}
+		inicial={(data.perfil.nombre || data.usuario?.email || '?').charAt(0)}
+	/>
+
 	<div class="space-y-1">
 		<h1 class="titulo-pagina">Mi cuenta</h1>
 		<p class="text-sm text-slate-600">{data.usuario?.email}</p>

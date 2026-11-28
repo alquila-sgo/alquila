@@ -9,7 +9,12 @@ declare global {
 			usuario: () => Promise<{ id: string; email: string | null; foto: string | null } | null>;
 		}
 		interface PageData {
-			usuario: { id: string; email: string | null; foto: string | null } | null;
+			usuario: {
+				id: string;
+				email: string | null;
+				foto: string | null;
+				nombre: string;
+			} | null;
 		}
 	}
 }

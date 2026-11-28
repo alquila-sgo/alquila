@@ -2,10 +2,12 @@ import { fail, redirect } from '@sveltejs/kit';
 import { VALORES_VACIOS, type Localidad } from '#lib/avisos.js';
 import { leerFormularioAviso, mensajeDeError, validarAviso } from '#lib/server/avisos.js';
 import { exigirUsuario } from '#lib/server/sesion.js';
+import { exigirDatos } from '#lib/server/perfil.js';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, url }) => {
-	await exigirUsuario(locals, url);
+	const usuario = await exigirUsuario(locals, url);
+	await exigirDatos(locals, usuario.id, '/publicar');
 	const { data: localidades, error } = await locals.supabase
 		.from('localidades')
 		.select('id, nombre, departamento')
