@@ -120,6 +120,10 @@
 <!-- eslint-enable svelte/no-navigation-without-resolve -->
 
 <div class="space-y-5">
+	<div class="flex items-start justify-between gap-3">
+		<h1 class="text-2xl leading-snug font-bold">{a.titulo}</h1>
+		{@render lapizDe('titulo', 'el título')}
+	</div>
 	{#if a.fotos.length}
 		<div class="relative -mx-4 sm:mx-0">
 			<div
@@ -180,10 +184,6 @@
 				{#if a.sin_expensas}Sin expensas{:else if a.expensas}+ {plata(a.expensas, 'ARS')} de expensas{/if}
 			</p>
 			{@render lapizDe('expensas', 'las expensas')}
-		</div>
-		<div class="flex items-start justify-between gap-3">
-			<h1 class="text-xl leading-snug font-bold">{a.titulo}</h1>
-			{@render lapizDe('titulo', 'el título')}
 		</div>
 		{#if a.sin_limite_personas || a.max_adultos}
 			<div class="flex items-center justify-between gap-3">
