@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { PUBLIC_SUPABASE_URL } from '$app/env/public';
-import { destinoSeguro } from '#lib/server/supabase.js';
+import { crearClienteParaEnlace, destinoSeguro } from '#lib/server/supabase.js';
 import { texto } from '#lib/formulario.js';
 import { exigirDatos } from '#lib/server/perfil.js';
 import type { Actions, PageServerLoad } from './$types';
@@ -42,7 +42,7 @@ export const actions: Actions = {
 		const r = await locals.supabase.rpc('estado_email', { p_email: email });
 		const estado: unknown = r.data;
 		if (estado === 'clave') return { email, pideClave: true };
-		return enviarEnlace(locals, url, form, email);
+		return enviarEnlace(url, form, email);
 	},
 
 	clave: async ({ locals, request }) => {
@@ -75,11 +75,11 @@ export const actions: Actions = {
 	cambiar: async ({ request }) => ({ email: texto(await request.formData(), 'email') }),
 
 	// Olvidó la contraseña: el mismo enlace, que lo lleva a crear una nueva.
-	olvide: async ({ locals, url, request }) => {
+	olvide: async ({ url, request }) => {
 		const form = await request.formData();
 		const email = texto(form, 'email').toLowerCase();
 		if (!emailValido(email)) return fail(400, { email, mensaje: 'Revisá el email.' });
-		return enviarEnlace(locals, url, form, email);
+		return enviarEnlace(url, form, email);
 	}
 };
 
@@ -87,10 +87,10 @@ function emailValido(email: string) {
 	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
 }
 
-async function enviarEnlace(locals: App.Locals, url: URL, form: FormData, email: string) {
+async function enviarEnlace(url: URL, form: FormData, email: string) {
 	const next = destinoSeguro(texto(form, 'next'), '/cuenta');
 	const vuelta = `${url.origin}/auth/callback?next=${encodeURIComponent(`/clave?next=${encodeURIComponent(next)}`)}`;
-	const { error } = await locals.supabase.auth.signInWithOtp({
+	const { error } = await crearClienteParaEnlace().auth.signInWithOtp({
 		email,
 		options: { emailRedirectTo: vuelta }
 	});

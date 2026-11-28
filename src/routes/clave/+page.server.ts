@@ -16,9 +16,9 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 		const tipo = url.searchParams.get('type') ?? 'email';
 		return { tokenHash, tipo, email: null, next };
 	}
+	// Sin sesión: la trae el enlace después del # (la lee la página en el navegador).
 	const usuario = await locals.usuario();
-	if (!usuario) redirect(303, '/ingresar?error=enlace');
-	return { tokenHash: '', tipo: '', email: usuario.email, next };
+	return { tokenHash: '', tipo: '', email: usuario?.email ?? null, next };
 };
 
 export const actions: Actions = {
@@ -34,7 +34,22 @@ export const actions: Actions = {
 		if (clave !== repetida) return fail(400, { mensaje: 'Las dos contraseñas no coinciden.' });
 
 		const tokenHash = texto(f, 'token_hash');
-		if (tokenHash) {
+		const accessToken = texto(f, 'access_token');
+		const refreshToken = texto(f, 'refresh_token');
+		if (accessToken && refreshToken) {
+			// Si había otra cuenta abierta en este dispositivo, se cierra para dar lugar a esta.
+			if (await locals.usuario()) await locals.supabase.auth.signOut({ scope: 'local' });
+			const { error } = await locals.supabase.auth.setSession({
+				access_token: accessToken,
+				refresh_token: refreshToken
+			});
+			if (error) {
+				return fail(400, {
+					vencido: true,
+					mensaje: 'El enlace venció o ya se usó. Pedí uno nuevo desde Ingresar.'
+				});
+			}
+		} else if (tokenHash) {
 			// Si había otra cuenta abierta en este dispositivo, se cierra para dar lugar a esta.
 			if (await locals.usuario()) await locals.supabase.auth.signOut({ scope: 'local' });
 			const tipo = texto(f, 'tipo');

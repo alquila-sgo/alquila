@@ -8,6 +8,10 @@ declare global {
 			/** Usuario con sesión verificada, o null si no ingresó. */
 			usuario: () => Promise<{ id: string; email: string | null; foto: string | null } | null>;
 		}
+		/** Estado de navegación "superficial": el visor de fotos abierto (para que Atrás lo cierre). */
+		interface PageState {
+			visor?: number;
+		}
 		interface PageData {
 			usuario: {
 				id: string;
