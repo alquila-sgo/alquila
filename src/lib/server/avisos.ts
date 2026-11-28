@@ -87,8 +87,8 @@ export function validarAviso(
 	if (!localidad && otra.length < 2) e.localidad_id = 'Elegí o escribí la localidad.';
 	else if (otra.length > 80) e.localidad_id = 'Máximo 80 caracteres.';
 	if (v.barrio.length > 80) e.barrio = 'Máximo 80 caracteres.';
-	if (v.descripcion.length < 20 || v.descripcion.length > 3000) {
-		e.descripcion = 'Entre 20 y 3000 caracteres.';
+	if (v.descripcion.length > 3000) {
+		e.descripcion = 'Máximo 3000 caracteres.';
 	}
 
 	const precio = monto(v.precio);
@@ -153,7 +153,7 @@ export function validarAviso(
 				localidad_id: localidad,
 				localidad_otra: otra || null,
 				barrio: v.barrio || null,
-				descripcion: v.descripcion,
+				descripcion: v.descripcion || null,
 				consultar_precio: v.consultar_precio,
 				precio: v.consultar_precio ? null : precio,
 				moneda: v.consultar_precio ? null : v.moneda,

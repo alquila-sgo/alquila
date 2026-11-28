@@ -1,16 +1,19 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import { invalidateAll } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { ESTADOS, MAX_FOTOS, MIN_FOTOS } from '#lib/avisos.js';
 	import { comprimirFoto } from '#lib/imagenes.js';
+	import { invalidateAll, replaceState } from '$app/navigation';
 	import PantallaPasos from '#lib/componentes/pasos/PantallaPasos.svelte';
+	import PublicacionExitosa from '#lib/componentes/pasos/PublicacionExitosa.svelte';
 	import type { PageProps } from './$types';
 
 	let { data, form }: PageProps = $props();
 	let a = $derived(data.aviso);
 	let subiendo = $state('');
 	let errorFotos = $state('');
+	let festejoVisto = $state(false);
+	const festejar = $derived(data.nuevo && a.estado === 'publicado' && !festejoVisto);
 
 	async function subir(ev: Event) {
 		const input = ev.currentTarget as HTMLInputElement;
@@ -46,6 +49,16 @@
 
 	const boton = 'btn btn-chico';
 </script>
+
+{#if festejar}
+	<PublicacionExitosa
+		onlisto={() => {
+			festejoVisto = true;
+			// Saca ?nuevo de la dirección para que no se repita al recargar.
+			void replaceState(resolve('/mis-avisos/[id]', { id: a.id }), {});
+		}}
+	/>
+{/if}
 
 <svelte:head><title>{a.titulo} · Mis avisos</title></svelte:head>
 
@@ -155,9 +168,6 @@
 			</p>
 		</div>
 
-		{#if data.nuevo && a.estado === 'publicado'}
-			<p class="aviso-ok text-base font-semibold">¡Listo! Tu aviso ya está publicado.</p>
-		{/if}
 		{#if a.estado === 'oculto'}
 			<p class="aviso-alerta">
 				Este aviso recibió denuncias y está en revisión. Te vamos a contactar.

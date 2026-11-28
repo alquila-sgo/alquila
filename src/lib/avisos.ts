@@ -21,8 +21,7 @@ export const AMUEBLADO = [
 ] as const;
 
 export const GARANTIAS = [
-	['propietaria', 'Garantía propietaria'],
-	['seguro_caucion', 'Seguro de caución'],
+	['propietaria', 'Garante'],
 	['recibo_sueldo', 'Recibo de sueldo']
 ] as const;
 
@@ -102,9 +101,9 @@ export const VALORES_VACIOS: ValoresAviso = {
 	expensas: '',
 	sin_expensas: false,
 	ajuste: '',
-	ambientes: '',
-	dormitorios: '',
-	banos: '',
+	ambientes: '1',
+	dormitorios: '1',
+	banos: '1',
 	superficie_m2: '',
 	mascotas: 'consultar',
 	amueblado: 'no',

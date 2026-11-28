@@ -164,12 +164,7 @@
 		{
 			titulo: 'Ponele nombre y contalo',
 			campos: ['titulo', 'descripcion'],
-			chequeo: () =>
-				v.titulo.trim().length < 10
-					? 'El título necesita al menos 10 letras.'
-					: v.descripcion.trim().length < 20
-						? 'La descripción necesita al menos 20 letras.'
-						: ''
+			chequeo: () => (v.titulo.trim().length < 10 ? 'El título necesita al menos 10 letras.' : '')
 		},
 		{
 			titulo: '¿Cómo te contactan?',
@@ -356,21 +351,18 @@
 		<div hidden={paso !== 4} class="divide-y divide-slate-200">
 			<Contador nombre="ambientes" etiqueta="Ambientes" bind:valor={v.ambientes} min={1} />
 			<Contador nombre="dormitorios" etiqueta="Dormitorios" bind:valor={v.dormitorios} />
-			<Contador nombre="banos" etiqueta="Baños" bind:valor={v.banos} max={10} opcional />
-			<label class="flex items-center justify-between gap-3 py-3">
-				<span class="font-semibold">
-					Superficie <span class="text-sm font-normal text-slate-500">(opcional)</span>
-				</span>
-				<span class="flex items-center gap-2">
-					<input
-						name="superficie_m2"
-						inputmode="numeric"
-						bind:value={v.superficie_m2}
-						class="campo w-24 text-right"
-					/>
-					m²
-				</span>
-			</label>
+			<Contador nombre="banos" etiqueta="Baños" bind:valor={v.banos} max={10} />
+			<Contador
+				nombre="superficie_m2"
+				etiqueta="Superficie aprox."
+				bind:valor={v.superficie_m2}
+				min={5}
+				max={5000}
+				paso={5}
+				inicio={30}
+				unidad="m²"
+				opcional
+			/>
 		</div>
 
 		<!-- 6. Comodidades -->
@@ -400,7 +392,7 @@
 				/>
 			</label>
 			<fieldset class="space-y-2">
-				<legend class="etiqueta mb-2">¿Está amueblado?</legend>
+				<legend class="etiqueta mb-2">¿Está amoblado?</legend>
 				<div class="flex flex-wrap gap-2">
 					{#each AMUEBLADO as [valor, texto] (valor)}
 						<label class={chip}>

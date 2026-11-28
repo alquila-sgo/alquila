@@ -6,6 +6,9 @@
 		valor = $bindable(''),
 		min = 0,
 		max = 20,
+		paso = 1,
+		inicio,
+		unidad = '',
 		opcional = false
 	}: {
 		nombre: string;
@@ -13,13 +16,21 @@
 		valor?: string;
 		min?: number;
 		max?: number;
+		/** De a cuánto suma o resta cada toque. */
+		paso?: number;
+		/** Valor del primer toque en + cuando está vacío (por defecto, el mínimo). */
+		inicio?: number;
+		unidad?: string;
 		opcional?: boolean;
 	} = $props();
 
 	const n = $derived(valor === '' ? null : Number(valor));
 	function cambiar(d: number) {
-		const base = n ?? (d > 0 ? min - 1 : min);
-		const nuevo = Math.min(max, Math.max(min, base + d));
+		if (n === null) {
+			valor = String(d > 0 ? (inicio ?? min) : min);
+			return;
+		}
+		const nuevo = Math.min(max, Math.max(min, n + d * paso));
 		valor = String(nuevo);
 	}
 </script>
@@ -39,7 +50,9 @@
 		>
 			−
 		</button>
-		<span class="w-8 text-center text-xl font-extrabold tabular-nums">{n ?? '–'}</span>
+		<span class="min-w-8 text-center text-xl font-extrabold tabular-nums">
+			{n ?? '–'}{#if unidad && n !== null}<span class="text-sm font-semibold"> {unidad}</span>{/if}
+		</span>
 		<button
 			type="button"
 			class="grid h-11 w-11 place-items-center rounded-full border-2 border-marca-600 text-xl font-bold text-marca-700 disabled:opacity-30"
