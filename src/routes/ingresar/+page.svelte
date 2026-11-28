@@ -22,8 +22,8 @@
 
 	{#if form?.enviado}
 		<p class="aviso-ok">
-			Te mandamos un enlace a <strong>{form.enviado}</strong>. Abrilo desde este mismo celular para
-			entrar.
+			Te mandamos un email a <strong>{form.enviado}</strong>. Abrí el enlace desde este mismo
+			celular para verificar tu cuenta y crear tu contraseña. Si no lo ves, mirá en Spam.
 		</p>
 	{:else}
 		<form method="POST" action="?/google">
@@ -54,34 +54,83 @@
 			></span>
 		</div>
 
-		<form
-			method="POST"
-			action="?/email"
-			class="space-y-3"
-			use:enhance={() => {
-				enviando = true;
-				return async ({ update }) => {
-					await update();
-					enviando = false;
-				};
-			}}
-		>
-			<input type="hidden" name="next" value={data.next} />
-			<label class="block space-y-1">
-				<span class="etiqueta">Email</span>
-				<input
-					type="email"
-					name="email"
-					required
-					autocomplete="email"
-					value={form?.email ?? ''}
-					class="campo"
-				/>
-			</label>
-			<button disabled={enviando} class="btn btn-primario w-full">
-				{enviando ? 'Enviando…' : 'Enviarme un enlace para entrar'}
-			</button>
-		</form>
+		{#if form?.pideClave}
+			<form
+				method="POST"
+				action="?/cambiar"
+				class="flex items-center justify-between gap-2 text-sm"
+			>
+				<input type="hidden" name="email" value={form.email} />
+				<strong class="truncate">{form.email}</strong>
+				<button class="shrink-0 text-marca-700 underline">Cambiar</button>
+			</form>
+			<form
+				method="POST"
+				action="?/clave"
+				class="space-y-3"
+				use:enhance={() => {
+					enviando = true;
+					return async ({ update }) => {
+						await update({ reset: false });
+						enviando = false;
+					};
+				}}
+			>
+				<input type="hidden" name="next" value={data.next} />
+				<input type="hidden" name="email" value={form.email} />
+				<label class="block space-y-1">
+					<span class="etiqueta">Contraseña</span>
+					<!-- svelte-ignore a11y_autofocus -->
+					<input
+						type="password"
+						name="clave"
+						required
+						autofocus
+						autocomplete="current-password"
+						class="campo"
+					/>
+				</label>
+				<button disabled={enviando} class="btn btn-primario w-full">
+					{enviando ? 'Entrando…' : 'Entrar'}
+				</button>
+				<button
+					formaction="?/olvide"
+					formnovalidate
+					class="w-full text-sm text-slate-600 underline"
+				>
+					Olvidé mi contraseña
+				</button>
+			</form>
+		{:else}
+			<form
+				method="POST"
+				action="?/email"
+				class="space-y-3"
+				use:enhance={() => {
+					enviando = true;
+					return async ({ update }) => {
+						await update();
+						enviando = false;
+					};
+				}}
+			>
+				<input type="hidden" name="next" value={data.next} />
+				<label class="block space-y-1">
+					<span class="etiqueta">Email</span>
+					<input
+						type="email"
+						name="email"
+						required
+						autocomplete="email"
+						value={form?.email ?? ''}
+						class="campo"
+					/>
+				</label>
+				<button disabled={enviando} class="btn btn-primario w-full">
+					{enviando ? 'Un momento…' : 'Continuar'}
+				</button>
+			</form>
+		{/if}
 	{/if}
 
 	{#if form?.mensaje}

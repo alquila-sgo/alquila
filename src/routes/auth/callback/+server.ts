@@ -12,7 +12,8 @@ export const GET: RequestHandler = async ({ url, locals }) => {
 		const { data, error } = await locals.supabase.auth.exchangeCodeForSession(code);
 		if (!error) {
 			// Cuenta nueva: primero sus datos (nombre, WhatsApp y foto), después a donde iba.
-			await exigirDatos(locals, data.user.id, next);
+			// Si viene a crear su contraseña, los datos se piden después (desde /clave).
+			if (!next.startsWith('/clave')) await exigirDatos(locals, data.user.id, next);
 			redirect(303, next);
 		}
 	}

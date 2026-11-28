@@ -43,7 +43,10 @@
 					break;
 				}
 			} catch {
-				errorFotos = `No se pudo leer "${archivo.name}". Probá con otra foto.`;
+				errorFotos =
+					/\.hei[cf]$/i.test(archivo.name) || /hei[cf]/i.test(archivo.type)
+						? 'Las fotos HEIC todavía no se pueden subir. Elegí otra o cambiá la cámara a JPG.'
+						: `No se pudo leer "${archivo.name}". Probá con otra foto.`;
 				break;
 			}
 		}
@@ -130,7 +133,7 @@
 		paso={13}
 		total={13}
 		titulo="Sumá fotos"
-		ayuda="Mínimo {MIN_FOTOS}. La primera es la portada."
+		ayuda="Con 1 alcanza. La primera es la portada."
 		cerrarHref={resolve('/mis-avisos/[id]', { id: a.id })}
 	>
 		<div class="flex min-h-0 flex-1 flex-col gap-4">
@@ -208,7 +211,7 @@
 					class="btn btn-acento w-full py-4 text-lg"
 					disabled={faltan > 0 || !!subiendo}
 				>
-					{faltan > 0 ? `Faltan ${faltan} foto${faltan === 1 ? '' : 's'}` : '¡Publicar aviso!'}
+					{faltan > 0 ? 'Sumá al menos 1 foto' : '¡Publicar aviso!'}
 				</button>
 			</form>
 		{/snippet}
@@ -236,7 +239,7 @@
 		<div class="space-y-3">
 			<h2 class="text-lg font-bold">Fotos ({a.fotos.length}/{MAX_FOTOS})</h2>
 			<p class="text-xs text-slate-500">
-				Mínimo {MIN_FOTOS}. La primera es la portada. Usá fotos tuyas de la propiedad.
+				Con {MIN_FOTOS} alcanza. La primera es la portada. Usá fotos tuyas de la propiedad.
 			</p>
 
 			<ul class="grid grid-cols-3 gap-2">
