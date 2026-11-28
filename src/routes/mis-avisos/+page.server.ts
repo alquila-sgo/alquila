@@ -1,5 +1,8 @@
+import { fail } from '@sveltejs/kit';
+import { borrarCarpetaDelAviso } from '#lib/server/fotos.js';
 import { exigirUsuario } from '#lib/server/sesion.js';
-import type { PageServerLoad } from './$types';
+import { texto } from '#lib/formulario.js';
+import type { Actions, PageServerLoad } from './$types';
 
 interface Fila {
 	id: string;
@@ -26,4 +29,21 @@ export const load: PageServerLoad = async ({ locals, url }) => {
 			vencido: a.estado === 'publicado' && !!a.vence_el && new Date(a.vence_el) < new Date()
 		}))
 	};
+};
+
+export const actions: Actions = {
+	borrar: async ({ locals, request }) => {
+		const usuario = await locals.usuario();
+		if (!usuario) return fail(401, { mensaje: 'Tu sesión venció. Volvé a ingresar.' });
+		const id = texto(await request.formData(), 'id');
+		const { data, error } = await locals.supabase
+			.from('avisos')
+			.delete()
+			.eq('id', id)
+			.eq('anunciante_id', usuario.id)
+			.select('id');
+		if (error || !data?.length) return fail(400, { mensaje: 'No se pudo borrar el aviso.' });
+		await borrarCarpetaDelAviso(id);
+		return { ok: true };
+	}
 };

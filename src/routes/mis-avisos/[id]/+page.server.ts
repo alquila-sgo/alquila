@@ -1,4 +1,4 @@
-import { error, fail, redirect } from '@sveltejs/kit';
+import { error, fail, isActionFailure, redirect } from '@sveltejs/kit';
 import { mensajeDeError } from '#lib/server/avisos.js';
 import { bucket, borrarCarpetaDelAviso } from '#lib/server/fotos.js';
 import { exigirUsuario } from '#lib/server/sesion.js';
@@ -59,7 +59,11 @@ async function cambiar(locals: App.Locals, id: string, cambios: Record<string, u
 }
 
 export const actions: Actions = {
-	publicar: ({ locals, params }) => cambiar(locals, params.id, { estado: 'publicado' }),
+	publicar: async ({ locals, params }) => {
+		const r = await cambiar(locals, params.id, { estado: 'publicado' });
+		// La página muestra el festejo con esto, sin depender de la dirección.
+		return isActionFailure(r) ? r : { ok: true, publicado: true };
+	},
 	pausar: ({ locals, params }) => cambiar(locals, params.id, { estado: 'pausado' }),
 	alquilado: ({ locals, params }) => cambiar(locals, params.id, { estado: 'alquilado' }),
 	// La base fija el vencimiento en 30 días desde hoy, sin importar el valor que se mande.

@@ -1,6 +1,12 @@
 <script lang="ts">
-	// Festejo a pantalla completa cuando se publica un aviso.
-	let { onlisto }: { onlisto: () => void } = $props();
+	// Festejo a pantalla completa cuando se publica un aviso. Se queda unos
+	// 2 segundos después de la animación y sigue solo (o antes, con un toque).
+	let { onlisto, duracion = 3400 }: { onlisto: () => void; duracion?: number } = $props();
+
+	$effect(() => {
+		const t = setTimeout(() => onlisto(), duracion);
+		return () => clearTimeout(t);
+	});
 
 	$effect(() => {
 		const html = document.documentElement;
@@ -12,9 +18,13 @@
 	});
 </script>
 
+<!-- Un toque en cualquier lado sigue antes de tiempo (el teclado no hace falta: sigue solo). -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
 <div
+	onclick={onlisto}
 	class="exito fixed inset-0 z-50 flex h-dvh flex-col items-center justify-center gap-8 bg-emerald-500 px-6 text-center text-white"
 	role="status"
+	aria-live="polite"
 >
 	<svg viewBox="0 0 120 120" class="h-40 w-40" aria-hidden="true">
 		<circle class="circulo" cx="60" cy="60" r="54" fill="white" fill-opacity="0.18" />
@@ -42,13 +52,6 @@
 		<h1 class="text-3xl font-extrabold">¡Publicación exitosa!</h1>
 		<p class="text-lg text-emerald-50">Tu aviso ya se puede ver.</p>
 	</div>
-	<button
-		type="button"
-		class="texto btn w-full max-w-xs bg-white py-4 text-lg text-emerald-700 shadow-lg hover:bg-emerald-50"
-		onclick={onlisto}
-	>
-		Listo
-	</button>
 </div>
 
 <style>

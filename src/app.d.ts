@@ -6,10 +6,10 @@ declare global {
 		interface Locals {
 			supabase: SupabaseClient;
 			/** Usuario con sesión verificada, o null si no ingresó. */
-			usuario: () => Promise<{ id: string; email: string | null } | null>;
+			usuario: () => Promise<{ id: string; email: string | null; foto: string | null } | null>;
 		}
 		interface PageData {
-			usuario: { id: string; email: string | null } | null;
+			usuario: { id: string; email: string | null; foto: string | null } | null;
 		}
 	}
 }
