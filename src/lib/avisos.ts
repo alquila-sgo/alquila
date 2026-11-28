@@ -31,7 +31,7 @@ export const SERVICIOS = [
 	['gas_natural', 'Gas natural'],
 	['internet', 'Internet'],
 	['aire_acondicionado', 'Aire acondicionado'],
-	['cochera', 'Cochera'],
+	['cochera', 'Garage'],
 	['patio', 'Patio'],
 	['pileta', 'Pileta']
 ] as const;
@@ -68,7 +68,9 @@ export interface ValoresAviso {
 	expensas: string;
 	sin_expensas: boolean;
 	ajuste: string;
-	ambientes: string;
+	cocina: string;
+	cocina_comedor: string;
+	comedor: string;
 	dormitorios: string;
 	banos: string;
 	superficie_m2: string;
@@ -101,7 +103,9 @@ export const VALORES_VACIOS: ValoresAviso = {
 	expensas: '',
 	sin_expensas: false,
 	ajuste: '',
-	ambientes: '1',
+	cocina: '0',
+	cocina_comedor: '0',
+	comedor: '0',
 	dormitorios: '1',
 	banos: '1',
 	superficie_m2: '',
@@ -163,6 +167,9 @@ export interface AvisoPublico {
 	expensas: number | null;
 	sin_expensas: boolean;
 	ambientes: number;
+	cocina: number;
+	cocina_comedor: number;
+	comedor: number;
 	dormitorios: number;
 	banos: number | null;
 	superficie_m2: number | null;
