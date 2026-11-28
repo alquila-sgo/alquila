@@ -11,14 +11,13 @@
 		tipo: 0,
 		localidad: 1,
 		mapa: 2,
-		privacidad: 3,
-		ambientes: 4,
-		servicios: 5,
-		precio: 6,
-		expensas: 7,
-		requisitos: 8,
-		titulo: 9,
-		contacto: 10
+		ambientes: 3,
+		servicios: 4,
+		precio: 5,
+		expensas: 6,
+		requisitos: 7,
+		titulo: 8,
+		contacto: 9
 	};
 	const editarHref = $derived(resolve('/mis-avisos/[id]/editar', { id: data.id }));
 	function lapiz(parte: string) {
