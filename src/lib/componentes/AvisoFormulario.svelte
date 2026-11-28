@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { untrack } from 'svelte';
 	import { enhance } from '$app/forms';
+	import { pushState } from '$app/navigation';
+	import { page } from '$app/state';
 	import MapaPin from './MapaPin.svelte';
 	import Contador from './pasos/Contador.svelte';
 	import PantallaPasos from './pasos/PantallaPasos.svelte';
@@ -217,15 +219,26 @@
 		actual.campos.map((c) => errores[c]).find((e) => e) ?? (paso === ultimo ? mensaje : '')
 	);
 
+	// Cada paso queda en el historial: el Atrás del celular (o la flecha) vuelve al paso anterior.
 	function siguiente() {
 		aviso = actual.chequeo();
 		if (aviso) return;
-		paso = Math.min(paso + 1, ultimo);
+		const nuevo = Math.min(paso + 1, ultimo);
+		void pushState('', { paso: nuevo });
+		paso = nuevo;
 	}
 	function atras() {
 		aviso = '';
-		paso = Math.max(paso - 1, 0);
+		history.back();
 	}
+	$effect(() => {
+		const enHistorial = page.state.paso;
+		untrack(() => {
+			if (soloPaso !== undefined) return;
+			aviso = '';
+			paso = Math.min(enHistorial ?? 0, ultimo);
+		});
+	});
 
 	const ICONOS: Record<string, string> = {
 		departamento: 'M4 21V4h11v17M15 9h5v12M2 21h20M8 8h3M8 12h3M8 16h3',

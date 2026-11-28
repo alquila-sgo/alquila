@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 
 	// Marco a pantalla completa para un asistente por pasos: no se desliza.
 	let {
@@ -24,6 +24,26 @@
 		pie: Snippet;
 		children: Snippet;
 	} = $props();
+
+	// Al cambiar de paso, el contenido entra deslizándose: desde la derecha al avanzar,
+	// desde la izquierda al volver. Sin animación si la persona pidió menos movimiento.
+	let cuerpo: HTMLDivElement | undefined = $state();
+	let pasoAnterior = untrack(() => paso);
+	$effect(() => {
+		const actual = paso;
+		const antes = pasoAnterior;
+		pasoAnterior = actual;
+		if (!cuerpo || actual === antes) return;
+		if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+		const desde = actual > antes ? '40%' : '-40%';
+		cuerpo.animate(
+			[
+				{ transform: `translateX(${desde})`, opacity: 0 },
+				{ transform: 'translateX(0)', opacity: 1 }
+			],
+			{ duration: 260, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' }
+		);
+	});
 
 	// Mientras está abierto, la página de atrás no se mueve.
 	$effect(() => {
@@ -76,7 +96,7 @@
 		<!-- eslint-enable svelte/no-navigation-without-resolve -->
 	</header>
 
-	<div class="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-5 pt-4">
+	<div bind:this={cuerpo} class="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-5 pt-4">
 		{#if !sinProgreso}
 			<p class="text-xs font-bold tracking-wider text-sol-600 uppercase">Paso {paso} de {total}</p>
 		{/if}

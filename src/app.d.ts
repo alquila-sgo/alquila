@@ -11,6 +11,8 @@ declare global {
 		/** Estado de navegación "superficial": el visor de fotos abierto (para que Atrás lo cierre). */
 		interface PageState {
 			visor?: number;
+			/** Paso del asistente: así el Atrás del celular vuelve al paso anterior. */
+			paso?: number;
 		}
 		interface PageData {
 			usuario: {
