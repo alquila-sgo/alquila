@@ -127,8 +127,8 @@
 	<!-- Último paso del asistente (publicar o editar): fotos, a pantalla completa. -->
 	{@const faltan = Math.max(MIN_FOTOS - a.fotos.length, 0)}
 	<PantallaPasos
-		paso={13}
-		total={13}
+		paso={14}
+		total={14}
 		titulo="Sumá fotos"
 		ayuda="Con 1 alcanza. La primera es la portada."
 		cerrarHref={data.editando

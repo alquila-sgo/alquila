@@ -15,5 +15,5 @@
 	localidades={data.localidades}
 	textoBoton="Guardar y subir fotos"
 	cerrarHref={resolve('/mis-avisos')}
-	totalPasos={13}
+	totalPasos={14}
 />

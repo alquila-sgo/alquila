@@ -9,17 +9,18 @@
 	// Cada lápiz abre el paso del asistente que corresponde a esa parte.
 	const PASO: Record<string, number> = {
 		tipo: 0,
-		localidad: 1,
-		mapa: 2,
-		privacidad: 3,
-		ambientes: 4,
-		servicios: 5,
-		precio: 6,
-		expensas: 7,
-		condiciones: 8,
-		requisitos: 9,
-		titulo: 10,
-		contacto: 11
+		personas: 1,
+		localidad: 2,
+		mapa: 3,
+		privacidad: 4,
+		ambientes: 5,
+		servicios: 6,
+		precio: 7,
+		expensas: 8,
+		condiciones: 9,
+		requisitos: 10,
+		titulo: 11,
+		contacto: 12
 	};
 	const editarHref = $derived(resolve('/mis-avisos/[id]/editar', { id: data.id }));
 	function lapiz(parte: string) {
