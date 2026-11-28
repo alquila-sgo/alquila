@@ -197,10 +197,14 @@
 	// llegar a ese paso, mientras la persona no lo haya cambiado a mano.
 	let tituloEditado = $state(untrack(() => !!inicial.titulo));
 	const tituloSugerido = $derived.by(() => {
-		const tipo = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
+		// Abreviado: "Depto, 2 dorm, ~30 m²".
+		const nombre = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
+		const tipo = v.tipo_propiedad === 'departamento' ? 'Depto' : nombre;
 		const d = Number(v.dormitorios);
-		const conDormitorios = !['monoambiente', 'habitacion'].includes(v.tipo_propiedad) && d > 0;
-		return conDormitorios ? `${tipo}, ${d} dormitorio${d === 1 ? '' : 's'}` : tipo;
+		const m2 = Number(v.superficie_m2);
+		return [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : '']
+			.filter(Boolean)
+			.join(', ');
 	});
 	$effect(() => {
 		if (actual.campos.includes('titulo') && !tituloEditado) v.titulo = tituloSugerido;
