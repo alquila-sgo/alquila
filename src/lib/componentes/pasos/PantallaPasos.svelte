@@ -9,6 +9,7 @@
 		ayuda = '',
 		cerrarHref,
 		onatras,
+		sinProgreso = false,
 		pie,
 		children
 	}: {
@@ -18,6 +19,8 @@
 		ayuda?: string;
 		cerrarHref: string;
 		onatras?: () => void;
+		/** Sin barra ni "Paso X de Y" (por ejemplo, al editar una sola parte). */
+		sinProgreso?: boolean;
 		pie: Snippet;
 		children: Snippet;
 	} = $props();
@@ -47,7 +50,7 @@
 			</svg>
 		</button>
 		<div
-			class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200"
+			class="h-2 flex-1 overflow-hidden rounded-full bg-slate-200 {sinProgreso ? 'invisible' : ''}"
 			role="progressbar"
 			aria-valuemin={1}
 			aria-valuemax={total}
@@ -74,7 +77,9 @@
 	</header>
 
 	<div class="mx-auto flex min-h-0 w-full max-w-lg flex-1 flex-col px-5 pt-4">
-		<p class="text-xs font-bold tracking-wider text-sol-600 uppercase">Paso {paso} de {total}</p>
+		{#if !sinProgreso}
+			<p class="text-xs font-bold tracking-wider text-sol-600 uppercase">Paso {paso} de {total}</p>
+		{/if}
 		<h1 class="mt-1 text-2xl leading-tight font-extrabold">{titulo}</h1>
 		{#if ayuda}<p class="mt-1 text-sm text-slate-600">{ayuda}</p>{/if}
 		<div class="mt-5 flex min-h-0 flex-1 flex-col">

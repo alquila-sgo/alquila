@@ -1,5 +1,5 @@
 import { error, fail, redirect } from '@sveltejs/kit';
-import type { Localidad } from '#lib/avisos.js';
+import type { AvisoPublico, Localidad } from '#lib/avisos.js';
 import {
 	filaAValores,
 	leerFormularioAviso,
@@ -16,10 +16,10 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 	const [{ data: aviso }, { data: privado }, { data: localidades }] = await Promise.all([
 		locals.supabase
 			.from('avisos')
-			.select('*')
+			.select('*, localidades(nombre), fotos(id, clave, orden)')
 			.eq('id', params.id)
 			.eq('anunciante_id', usuario.id)
-			.maybeSingle<Record<string, unknown>>(),
+			.maybeSingle<AvisoPublico>(),
 		locals.supabase
 			.from('avisos_privado')
 			.select('lat, lng, direccion, mostrar_exacta')
@@ -32,7 +32,17 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 			.returns<Localidad[]>()
 	]);
 	if (!aviso) error(404, 'Aviso no encontrado');
-	return { id: params.id, inicial: filaAValores(aviso, privado), localidades: localidades ?? [] };
+	aviso.fotos.sort((a, b) => a.orden - b.orden);
+	// ?paso=N abre solo ese paso del asistente; sin él se ve el aviso con un lápiz en cada parte.
+	const n = Number(url.searchParams.get('paso'));
+	const paso = url.searchParams.has('paso') && Number.isInteger(n) && n >= 0 && n <= 11 ? n : null;
+	return {
+		id: params.id,
+		aviso,
+		paso,
+		inicial: filaAValores(aviso as unknown as Record<string, unknown>, privado),
+		localidades: localidades ?? []
+	};
 };
 
 export const actions: Actions = {
@@ -61,6 +71,6 @@ export const actions: Actions = {
 			.upsert({ aviso_id: params.id, ...r.datos.privado });
 		if (e2) return fail(400, { valores, errores: {}, mensaje: mensajeDeError(e2) });
 
-		redirect(303, `/mis-avisos/${params.id}?fotos=1`);
+		redirect(303, `/mis-avisos/${params.id}/editar`);
 	}
 };

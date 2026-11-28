@@ -131,10 +131,9 @@
 		total={13}
 		titulo="Sumá fotos"
 		ayuda="Con 1 alcanza. La primera es la portada."
-		cerrarHref={data.editando ? resolve('/mis-avisos') : resolve('/mis-avisos/[id]', { id: a.id })}
-		onatras={data.editando
-			? () => void goto(resolve('/mis-avisos/[id]/editar', { id: a.id }))
-			: undefined}
+		cerrarHref={data.editando
+			? resolve('/mis-avisos/[id]/editar', { id: a.id })
+			: resolve('/mis-avisos/[id]', { id: a.id })}
 	>
 		<div class="flex min-h-0 flex-1 flex-col gap-4">
 			{#if a.fotos.length < MAX_FOTOS}
@@ -209,9 +208,9 @@
 					type="button"
 					class="btn btn-acento w-full py-4 text-lg"
 					disabled={faltan > 0 || !!subiendo}
-					onclick={() => void goto(resolve('/mis-avisos'))}
+					onclick={() => void goto(resolve('/mis-avisos/[id]/editar', { id: a.id }))}
 				>
-					{faltan > 0 ? 'Sumá al menos 1 foto' : 'Guardar cambios'}
+					{faltan > 0 ? 'Sumá al menos 1 foto' : 'Listo'}
 				</button>
 			{:else}
 				<form method="POST" action="?/publicar" use:enhance>

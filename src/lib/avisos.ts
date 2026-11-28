@@ -145,3 +145,46 @@ export function montoATexto(n: unknown): string {
 	if (!Number.isFinite(num)) return '';
 	return formatearMiles(String(num).replace('.', ','));
 }
+
+/** Un aviso tal como se muestra (vista pública y vista de edición). */
+export interface AvisoPublico {
+	id: string;
+	anunciante_id: string;
+	estado: string;
+	vence_el: string | null;
+	titulo: string;
+	tipo_propiedad: string;
+	localidad_otra: string | null;
+	barrio: string | null;
+	descripcion: string | null;
+	consultar_precio: boolean;
+	precio: number | null;
+	moneda: 'ARS' | 'USD' | null;
+	expensas: number | null;
+	sin_expensas: boolean;
+	ambientes: number;
+	dormitorios: number;
+	banos: number | null;
+	superficie_m2: number | null;
+	mascotas: string;
+	amueblado: string | null;
+	garantias: string[];
+	meses_deposito: number | null;
+	requisitos: string | null;
+	agua: boolean;
+	luz: boolean;
+	gas_natural: boolean;
+	internet: boolean;
+	aire_acondicionado: boolean;
+	cochera: boolean;
+	patio: boolean;
+	pileta: boolean;
+	otros_servicios: string | null;
+	contacto_whatsapp: boolean;
+	contacto_formulario: boolean;
+	lat_publica: number | null;
+	lng_publica: number | null;
+	ubicacion_exacta: boolean;
+	localidades: { nombre: string } | null;
+	fotos: { id: string; clave: string; orden: number }[];
+}
