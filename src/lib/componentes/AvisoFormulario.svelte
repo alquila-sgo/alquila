@@ -41,6 +41,57 @@
 		v = { ...inicial };
 	});
 
+	// Localidad: tres principales a un toque, el resto escribiendo.
+	const sinTildes = (t: string) =>
+		t
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.toLowerCase()
+			.trim();
+	const PRINCIPALES = [
+		['Santiago del Estero', 'Santiago capital'],
+		['La Banda', 'La Banda'],
+		['Termas de Río Hondo', 'Termas de Río Hondo']
+	] as const;
+	const principales = $derived(
+		PRINCIPALES.map(([nombre, texto]) => ({
+			id: String(localidades.find((l) => l.nombre === nombre)?.id ?? ''),
+			texto
+		})).filter((p) => p.id)
+	);
+	const otras = $derived(
+		localidades.filter((l) => !principales.some((p) => p.id === String(l.id)))
+	);
+	let eleccion = $state('');
+	let otraTexto = $state('');
+	$effect.pre(() => {
+		const id = inicial.localidad_id;
+		untrack(() => {
+			if (!id) eleccion = '';
+			else if (principales.some((p) => p.id === id)) eleccion = id;
+			else {
+				eleccion = 'otro';
+				otraTexto = localidades.find((l) => String(l.id) === id)?.nombre ?? '';
+			}
+		});
+	});
+	function elegirLocalidad(valor: string) {
+		eleccion = valor;
+		v.localidad_id = valor === 'otro' ? buscarOtra(otraTexto) : valor;
+	}
+	function buscarOtra(t: string) {
+		const l = otras.find((x) => sinTildes(x.nombre) === sinTildes(t));
+		return l ? String(l.id) : '';
+	}
+
+	// Expensas: primero sí/no; el monto solo si cobra.
+	let cobra = $state('');
+	$effect.pre(() => {
+		const sin = inicial.sin_expensas;
+		const monto = inicial.expensas;
+		untrack(() => (cobra = sin ? 'no' : monto ? 'si' : ''));
+	});
+
 	let paso = $state(0);
 	let aviso = $state('');
 	let enviando = $state(false);
@@ -51,7 +102,12 @@
 		{
 			titulo: '¿En qué localidad está?',
 			campos: ['localidad_id', 'barrio'],
-			chequeo: () => (v.localidad_id ? '' : 'Elegí la localidad.')
+			chequeo: () =>
+				v.localidad_id
+					? ''
+					: eleccion === 'otro'
+						? 'No encontramos esa localidad. Elegila de la lista que aparece al escribir.'
+						: 'Elegí la localidad.'
 		},
 		{
 			titulo: 'Marcá el lugar en el mapa',
@@ -73,7 +129,7 @@
 		{
 			titulo: '¿Qué tiene?',
 			ayuda: 'Tocá todo lo que corresponda.',
-			campos: [],
+			campos: ['otros_servicios'],
 			chequeo: () => ''
 		},
 		{
@@ -83,18 +139,23 @@
 				v.consultar_precio || /\d/.test(v.precio) ? '' : 'Escribí el precio o elegí "Consultar".'
 		},
 		{
-			titulo: 'Expensas y ajuste',
-			campos: ['expensas', 'ajuste'],
-			chequeo: () => ''
+			titulo: 'Expensas',
+			campos: ['expensas'],
+			chequeo: () =>
+				!cobra
+					? 'Elegí sí o no.'
+					: cobra === 'si' && !/[1-9]/.test(v.expensas)
+						? 'Escribí cuánto cobrás de expensas.'
+						: ''
 		},
 		{
 			titulo: 'Condiciones',
-			campos: ['mascotas', 'amueblado', 'disponible_desde'],
+			campos: ['mascotas', 'amueblado', 'requisitos'],
 			chequeo: () => ''
 		},
 		{
 			titulo: '¿Qué pedís para alquilar?',
-			campos: ['meses_deposito', 'requisitos'],
+			campos: ['meses_deposito'],
 			chequeo: () => ''
 		},
 		{
@@ -212,16 +273,39 @@
 		</div>
 
 		<!-- 2. Localidad -->
-		<div hidden={paso !== 1} class="space-y-5">
-			<label class="block space-y-2">
-				<span class="etiqueta">Localidad</span>
-				<select name="localidad_id" bind:value={v.localidad_id} class="campo py-3.5 text-lg">
-					<option value="" disabled>Elegí…</option>
-					{#each localidades as l (l.id)}
-						<option value={String(l.id)}>{l.nombre} ({l.departamento})</option>
-					{/each}
-				</select>
-			</label>
+		<div hidden={paso !== 1} class="space-y-4">
+			<div class="grid grid-cols-2 gap-2.5">
+				{#each [...principales, { id: 'otro', texto: 'Otra' }] as p (p.id)}
+					<label
+						class="flex cursor-pointer items-center justify-center rounded-2xl border-2 border-slate-200 bg-white px-3 py-4 text-center font-bold transition has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50 has-[:checked]:text-marca-800"
+					>
+						<input
+							type="radio"
+							name="eleccion_localidad"
+							value={p.id}
+							checked={eleccion === p.id}
+							onchange={() => elegirLocalidad(p.id)}
+							class="sr-only"
+						/>
+						{p.texto}
+					</label>
+				{/each}
+			</div>
+			{#if eleccion === 'otro'}
+				<input
+					list="lista-localidades"
+					bind:value={otraTexto}
+					oninput={() => (v.localidad_id = buscarOtra(otraTexto))}
+					placeholder="Escribí la localidad"
+					aria-label="Otra localidad"
+					autocomplete="off"
+					class="campo py-3.5 text-lg"
+				/>
+				<datalist id="lista-localidades">
+					{#each otras as l (l.id)}<option value={l.nombre}></option>{/each}
+				</datalist>
+			{/if}
+			<input type="hidden" name="localidad_id" value={v.localidad_id} />
 			<label class="block space-y-2">
 				<span class="etiqueta">
 					Barrio <span class="font-normal text-slate-500">(opcional)</span>
@@ -260,18 +344,7 @@
 				</span>
 			</label>
 			{#if v.mostrar_exacta}<input type="hidden" name="mostrar_exacta" value="on" />{/if}
-			<label class="block space-y-2 pt-3">
-				<span class="etiqueta">
-					Dirección <span class="font-normal text-slate-500">(opcional, no se publica)</span>
-				</span>
-				<input
-					name="direccion"
-					bind:value={v.direccion}
-					maxlength="200"
-					placeholder="Para recordarla vos"
-					class="campo py-3"
-				/>
-			</label>
+			<input type="hidden" name="direccion" value={v.direccion} />
 		</div>
 
 		<!-- 5. Ambientes -->
@@ -296,19 +369,31 @@
 		</div>
 
 		<!-- 6. Comodidades -->
-		<div hidden={paso !== 5} class="flex flex-wrap content-start gap-2.5">
-			{#each SERVICIOS as [valor, texto] (valor)}
-				<label class={chip}>
-					<input
-						type="checkbox"
-						name="servicios"
-						value={valor}
-						bind:group={v.servicios}
-						class="sr-only"
-					/>
-					{texto}
-				</label>
-			{/each}
+		<div hidden={paso !== 5} class="space-y-5">
+			<div class="flex flex-wrap content-start gap-2.5">
+				{#each SERVICIOS as [valor, texto] (valor)}
+					<label class={chip}>
+						<input
+							type="checkbox"
+							name="servicios"
+							value={valor}
+							bind:group={v.servicios}
+							class="sr-only"
+						/>
+						{texto}
+					</label>
+				{/each}
+			</div>
+			<label class="block space-y-2">
+				<span class="etiqueta">Otros servicios</span>
+				<input
+					name="otros_servicios"
+					bind:value={v.otros_servicios}
+					maxlength="200"
+					placeholder="Ej: lavadero, parrilla, seguridad"
+					class="campo py-3"
+				/>
+			</label>
 		</div>
 
 		<!-- 7. Precio -->
@@ -352,33 +437,40 @@
 
 		<!-- 8. Expensas y ajuste -->
 		<div hidden={paso !== 7} class="space-y-5">
-			<label class="block space-y-2">
-				<span class="etiqueta">Expensas por mes</span>
-				<input
-					name="expensas"
-					inputmode="decimal"
-					bind:value={v.expensas}
-					disabled={v.sin_expensas}
-					placeholder="0"
-					class="campo py-3 text-lg disabled:opacity-40"
-				/>
-			</label>
-			<label class={opcion}>
-				<input type="checkbox" name="sin_expensas" bind:checked={v.sin_expensas} class="h-5 w-5" />
-				No tiene expensas
-			</label>
-			<label class="block space-y-2">
-				<span class="etiqueta">
-					Ajuste <span class="font-normal text-slate-500">(opcional)</span>
-				</span>
-				<input
-					name="ajuste"
-					bind:value={v.ajuste}
-					maxlength="120"
-					placeholder="Ej: cada 3 meses por IPC"
-					class="campo py-3"
-				/>
-			</label>
+			<p class="etiqueta">¿Cobrás expensas?</p>
+			<div class="grid grid-cols-2 gap-2.5">
+				{#each [['si', 'Sí'], ['no', 'No']] as [valor, texto] (valor)}
+					<label
+						class="flex cursor-pointer items-center justify-center rounded-2xl border-2 border-slate-200 bg-white py-4 text-lg font-bold transition has-[:checked]:border-marca-600 has-[:checked]:bg-marca-50 has-[:checked]:text-marca-800"
+					>
+						<input
+							type="radio"
+							name="cobra_expensas"
+							value={valor}
+							checked={cobra === valor}
+							onchange={() => {
+								cobra = valor;
+								v.sin_expensas = valor === 'no';
+							}}
+							class="sr-only"
+						/>
+						{texto}
+					</label>
+				{/each}
+			</div>
+			{#if cobra === 'no'}<input type="hidden" name="sin_expensas" value="on" />{/if}
+			{#if cobra === 'si'}
+				<label class="block space-y-2">
+					<span class="etiqueta">¿Cuánto por mes?</span>
+					<input
+						name="expensas"
+						inputmode="decimal"
+						bind:value={v.expensas}
+						placeholder="Ej: 25.000"
+						class="campo py-3.5 text-lg"
+					/>
+				</label>
+			{/if}
 		</div>
 
 		<!-- 9. Condiciones -->
@@ -416,11 +508,12 @@
 				</div>
 			</fieldset>
 			<label class="block space-y-2">
-				<span class="etiqueta">Disponible desde</span>
+				<span class="etiqueta">Otros requisitos</span>
 				<input
-					name="disponible_desde"
-					type="date"
-					bind:value={v.disponible_desde}
+					name="requisitos"
+					bind:value={v.requisitos}
+					maxlength="500"
+					placeholder="Ej: no fumadores"
 					class="campo py-3"
 				/>
 			</label>
@@ -447,13 +540,6 @@
 				bind:valor={v.meses_deposito}
 				max={12}
 				opcional
-			/>
-			<input
-				name="requisitos"
-				bind:value={v.requisitos}
-				maxlength="500"
-				placeholder="Otros requisitos (opcional)"
-				class="campo py-3"
 			/>
 		</div>
 
