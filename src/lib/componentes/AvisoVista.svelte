@@ -44,8 +44,14 @@
 	const plata = (n: number, moneda: string | null) =>
 		`${moneda === 'USD' ? 'US$' : '$'} ${n.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`;
 
+	// "B° Centro"; si ya lo escribió con B°, Bº, Bo. o "Barrio", no se repite.
+	const barrio = (b: string | null) => {
+		const t = (b ?? '').trim();
+		if (!t) return '';
+		return `B° ${t.replace(/^(b[°º]\s*|bo\.\s*|bo\s+|barrio\s+)/i, '')}`;
+	};
 	const lugar = $derived(
-		[a.barrio, a.localidades?.nombre ?? a.localidad_otra].filter(Boolean).join(', ')
+		[barrio(a.barrio), a.localidades?.nombre ?? a.localidad_otra].filter(Boolean).join(', ')
 	);
 	const tipo = $derived(
 		a.tipo_propiedad === 'duplex'
