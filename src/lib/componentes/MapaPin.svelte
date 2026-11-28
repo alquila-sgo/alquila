@@ -8,8 +8,15 @@
 		lat = $bindable(''),
 		lng = $bindable(''),
 		editable = true,
-		radioMetros = 0
-	}: { lat?: string; lng?: string; editable?: boolean; radioMetros?: number } = $props();
+		radioMetros = 0,
+		alto = 'h-72'
+	}: {
+		lat?: string;
+		lng?: string;
+		editable?: boolean;
+		radioMetros?: number;
+		alto?: string;
+	} = $props();
 
 	let contenedor: HTMLDivElement;
 	let error = $state('');
@@ -109,8 +116,8 @@
 	}
 </script>
 
-<div class="relative overflow-hidden rounded-2xl border border-slate-200">
-	<div bind:this={contenedor} class="h-72 w-full bg-slate-100"></div>
+<div class={['relative overflow-hidden rounded-2xl border border-slate-200', alto]}>
+	<div bind:this={contenedor} class="h-full w-full bg-slate-100"></div>
 	{#if error}
 		<p class="absolute inset-0 grid place-items-center bg-white/90 p-4 text-center text-sm">
 			{error}
