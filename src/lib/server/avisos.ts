@@ -80,7 +80,8 @@ export function validarAviso(
 ): { ok: true; datos: AvisoValidado } | { ok: false; errores: Record<string, string> } {
 	const e: Record<string, string> = {};
 
-	if (v.titulo.length < 10 || v.titulo.length > 100) e.titulo = 'Entre 10 y 100 caracteres.';
+	if (!v.titulo) e.titulo = 'Escribí un título.';
+	else if (v.titulo.length > 200) e.titulo = 'Máximo 200 caracteres.';
 	// 'duplex' ya no se ofrece, pero los avisos viejos lo pueden tener.
 	if (![...valoresDe(TIPOS_PROPIEDAD), 'duplex'].includes(v.tipo_propiedad))
 		e.tipo_propiedad = 'Elegí un tipo.';
