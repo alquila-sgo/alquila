@@ -61,6 +61,6 @@ export const actions: Actions = {
 			.upsert({ aviso_id: params.id, ...r.datos.privado });
 		if (e2) return fail(400, { valores, errores: {}, mensaje: mensajeDeError(e2) });
 
-		redirect(303, `/mis-avisos/${params.id}`);
+		redirect(303, `/mis-avisos/${params.id}?fotos=1`);
 	}
 };

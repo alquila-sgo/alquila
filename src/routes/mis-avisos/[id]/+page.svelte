@@ -123,15 +123,18 @@
 
 <svelte:head><title>{a.titulo} · Mis avisos</title></svelte:head>
 
-{#if data.nuevo && a.estado === 'borrador'}
-	<!-- Último paso del asistente de publicar: fotos, a pantalla completa. -->
+{#if (data.nuevo && a.estado === 'borrador') || data.editando}
+	<!-- Último paso del asistente (publicar o editar): fotos, a pantalla completa. -->
 	{@const faltan = Math.max(MIN_FOTOS - a.fotos.length, 0)}
 	<PantallaPasos
 		paso={13}
 		total={13}
 		titulo="Sumá fotos"
 		ayuda="Con 1 alcanza. La primera es la portada."
-		cerrarHref={resolve('/mis-avisos/[id]', { id: a.id })}
+		cerrarHref={data.editando ? resolve('/mis-avisos') : resolve('/mis-avisos/[id]', { id: a.id })}
+		onatras={data.editando
+			? () => void goto(resolve('/mis-avisos/[id]/editar', { id: a.id }))
+			: undefined}
 	>
 		<div class="flex min-h-0 flex-1 flex-col gap-4">
 			{#if a.fotos.length < MAX_FOTOS}
@@ -201,16 +204,27 @@
 			{#if errorFotos || form?.mensaje}
 				<p class="aviso-error mb-3" role="alert">{errorFotos || form?.mensaje}</p>
 			{/if}
-			<form method="POST" action="?/publicar" use:enhance>
+			{#if data.editando}
 				<button
-					type={data.tieneWhatsapp ? 'submit' : 'button'}
-					onclick={pedirSiFalta}
+					type="button"
 					class="btn btn-acento w-full py-4 text-lg"
 					disabled={faltan > 0 || !!subiendo}
+					onclick={() => void goto(resolve('/mis-avisos'))}
 				>
-					{faltan > 0 ? 'Sumá al menos 1 foto' : '¡Publicar aviso!'}
+					{faltan > 0 ? 'Sumá al menos 1 foto' : 'Guardar cambios'}
 				</button>
-			</form>
+			{:else}
+				<form method="POST" action="?/publicar" use:enhance>
+					<button
+						type={data.tieneWhatsapp ? 'submit' : 'button'}
+						onclick={pedirSiFalta}
+						class="btn btn-acento w-full py-4 text-lg"
+						disabled={faltan > 0 || !!subiendo}
+					>
+						{faltan > 0 ? 'Sumá al menos 1 foto' : '¡Publicar aviso!'}
+					</button>
+				</form>
+			{/if}
 		{/snippet}
 	</PantallaPasos>
 {:else}

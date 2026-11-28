@@ -41,6 +41,7 @@ export const load: PageServerLoad = async ({ locals, params, url }) => {
 		aviso,
 		tieneWhatsapp: !!perfil?.whatsapp,
 		nuevo: url.searchParams.has('nuevo'),
+		editando: url.searchParams.has('fotos'),
 		vencido:
 			aviso.estado === 'publicado' && !!aviso.vence_el && new Date(aviso.vence_el) < new Date()
 	};

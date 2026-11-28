@@ -37,7 +37,7 @@
 	<ul class="space-y-3">
 		{#each data.avisos as a (a.id)}
 			<li class="tarjeta flex gap-3 p-3!">
-				<a href={resolve('/mis-avisos/[id]', { id: a.id })} class="shrink-0">
+				<div class="shrink-0">
 					{#if a.portada}
 						<img
 							src="/fotos/{a.portada}"
@@ -52,9 +52,9 @@
 							Sin fotos
 						</div>
 					{/if}
-				</a>
+				</div>
 				<div class="flex min-w-0 flex-1 flex-col justify-between gap-2">
-					<a href={resolve('/mis-avisos/[id]', { id: a.id })} class="space-y-1">
+					<div class="space-y-1">
 						<p class="line-clamp-2 leading-snug font-semibold">{a.titulo}</p>
 						<span
 							class="inline-block rounded-full px-2 py-0.5 text-xs font-semibold {a.vencido
@@ -63,7 +63,7 @@
 						>
 							{a.vencido ? 'Vencido' : (ESTADOS[a.estado] ?? a.estado)}
 						</span>
-					</a>
+					</div>
 					<div class="flex justify-end gap-2">
 						<a
 							href={resolve('/mis-avisos/[id]/editar', { id: a.id })}
