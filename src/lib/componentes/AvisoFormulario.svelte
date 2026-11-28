@@ -202,14 +202,16 @@
 	// llegar a ese paso, mientras la persona no lo haya cambiado a mano.
 	let tituloEditado = $state(untrack(() => !!inicial.titulo));
 	const tituloSugerido = $derived.by(() => {
-		// Abreviado: "Depto, 2 dorm, ~30 m²".
+		// Abreviado: "Depto., 2 dorm, ~30 m²" o "Monoamb, ~25 m²".
 		const nombre = TIPOS_PROPIEDAD.find(([k]) => k === v.tipo_propiedad)?.[1] ?? '';
 		const tipo =
 			v.tipo_propiedad === 'departamento'
-				? 'Depto'
-				: v.tipo_propiedad === 'otro' && v.tipo_otro.trim()
-					? v.tipo_otro.trim()
-					: nombre;
+				? 'Depto.'
+				: v.tipo_propiedad === 'monoambiente'
+					? 'Monoamb'
+					: v.tipo_propiedad === 'otro' && v.tipo_otro.trim()
+						? v.tipo_otro.trim()
+						: nombre;
 		const d = Number(v.dormitorios);
 		const m2 = Number(v.superficie_m2);
 		return [tipo, !esMono && d > 0 ? `${d} dorm` : '', m2 > 0 ? `~${m2} m²` : '']
