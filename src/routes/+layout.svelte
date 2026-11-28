@@ -47,25 +47,7 @@
 		{@render children()}
 	</main>
 
-	<footer class="mt-16 bg-marca-900 text-marca-100">
-		<div class="mx-auto grid max-w-5xl gap-6 px-4 py-10 sm:grid-cols-2">
-			<div class="space-y-2">
-				<p class="text-lg font-extrabold text-white">
-					Alquilá<span class="text-sol-400">Sgo</span>
-				</p>
-				<p class="max-w-xs text-sm text-marca-200">
-					Alquileres en toda la provincia de Santiago del Estero, directo con dueños e
-					inmobiliarias.
-				</p>
-			</div>
-			<nav class="flex flex-col gap-2 text-sm sm:items-end">
-				<a href={resolve('/publicar')} class="hover:text-white">Publicar un aviso</a>
-				<a href={resolve('/mis-avisos')} class="hover:text-white">Mis avisos</a>
-				<a href={resolve('/cuenta')} class="hover:text-white">Mi cuenta</a>
-			</nav>
-		</div>
-		<p class="border-t border-white/10 py-4 text-center text-xs text-marca-200">
-			Hecho en Santiago del Estero · © {new Date().getFullYear()} Alquilá Sgo
-		</p>
+	<footer class="mt-16 border-t border-slate-200/70 py-6 text-center text-sm text-slate-500">
+		Alquilá<span class="font-semibold text-sol-500">Sgo</span> · Hecho en Santiago del Estero
 	</footer>
 </div>
