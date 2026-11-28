@@ -6,6 +6,10 @@
 
 	let { data, form }: PageProps = $props();
 
+	// Aviso que se está por eliminar: abre la ventana de confirmación propia.
+	let aBorrar = $state<{ id: string; titulo: string } | null>(null);
+	let borrando = $state(false);
+
 	const boton = 'flex items-center justify-center gap-2 py-3 font-semibold transition';
 	const color: Record<string, string> = {
 		publicado: 'bg-marca-50 text-marca-700',
@@ -15,6 +19,63 @@
 </script>
 
 <svelte:head><title>Mis avisos · Alquilá Sgo</title></svelte:head>
+
+{#if aBorrar}
+	<div
+		class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-4 sm:items-center"
+		role="dialog"
+		aria-modal="true"
+		aria-labelledby="titulo-borrar"
+	>
+		<form
+			method="POST"
+			action="?/borrar"
+			class="w-full max-w-sm space-y-4 rounded-3xl bg-white p-6 text-center shadow-xl"
+			use:enhance={() => {
+				borrando = true;
+				return async ({ update }) => {
+					await update();
+					borrando = false;
+					aBorrar = null;
+				};
+			}}
+		>
+			<div class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-50 text-red-600">
+				<svg
+					viewBox="0 0 24 24"
+					class="h-7 w-7"
+					fill="none"
+					stroke="currentColor"
+					stroke-width="1.9"
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					aria-hidden="true"
+				>
+					<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+				</svg>
+			</div>
+			<div class="space-y-1">
+				<h2 id="titulo-borrar" class="text-xl font-extrabold">¿Estás seguro?</h2>
+				<p class="text-slate-600">No hay vuelta atrás.</p>
+				<p class="line-clamp-2 text-sm font-semibold text-slate-500">"{aBorrar.titulo}"</p>
+			</div>
+			<input type="hidden" name="id" value={aBorrar.id} />
+			<div class="grid grid-cols-2 gap-3">
+				<button
+					type="button"
+					class="btn btn-secundario py-3"
+					disabled={borrando}
+					onclick={() => (aBorrar = null)}
+				>
+					Cancelar
+				</button>
+				<button class="btn bg-red-600 py-3 text-white hover:bg-red-700" disabled={borrando}>
+					{borrando ? 'Eliminando…' : 'Eliminar'}
+				</button>
+			</div>
+		</form>
+	</div>
+{/if}
 
 <section class="space-y-4">
 	<div class="flex items-center justify-between">
@@ -86,15 +147,12 @@
 					</span>
 				</a>
 				<div class="grid grid-cols-2 divide-x divide-slate-200 border-t border-slate-200 text-sm">
-					<form
-						method="POST"
-						action="?/borrar"
-						use:enhance={({ cancel }) => {
-							if (!confirm(`¿Eliminar "${a.titulo}"? No se puede deshacer.`)) cancel();
-						}}
-					>
-						<input type="hidden" name="id" value={a.id} />
-						<button class="{boton} w-full bg-red-50 text-red-700 hover:bg-red-100">
+					<div>
+						<button
+							type="button"
+							class="{boton} w-full bg-red-50 text-red-700 hover:bg-red-100"
+							onclick={() => (aBorrar = { id: a.id, titulo: a.titulo })}
+						>
 							<svg
 								viewBox="0 0 24 24"
 								class="h-5 w-5"
@@ -111,7 +169,7 @@
 							</svg>
 							Eliminar
 						</button>
-					</form>
+					</div>
 					<a
 						href={resolve('/aviso/[id]', { id: a.id })}
 						class="{boton} text-marca-700 hover:bg-marca-50"
