@@ -26,14 +26,14 @@
 {/snippet}
 
 <div class="flex items-center gap-3">
-	<div class="flex w-12 shrink-0 flex-col items-center gap-0.5 text-marca-700">
-		<div class="flex">
+	<div class="flex w-10 shrink-0 flex-col items-center text-marca-700">
+		<div class="flex -space-x-1">
 			{#each Array.from({ length: iconosAdultos }, (_, i) => i) as i (i)}{@render persona(
 					'h-6 w-6'
 				)}{/each}
 		</div>
 		{#if iconosNinos}
-			<div class="flex text-sol-500">
+			<div class="-mt-0.5 flex -space-x-0.5 text-sol-500">
 				{#each Array.from({ length: iconosNinos }, (_, i) => i) as i (i)}{@render persona(
 						'h-4 w-4'
 					)}{/each}
