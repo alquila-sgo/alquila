@@ -1,4 +1,9 @@
 <script lang="ts">
+	// En la app instalada el documento igual rebotaba: se bloquea mientras se ve la portada.
+	$effect(() => {
+		document.documentElement.classList.add('sin-scroll');
+		return () => document.documentElement.classList.remove('sin-scroll');
+	});
 	import { resolve } from '$app/paths';
 
 	const sellos = [

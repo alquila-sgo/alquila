@@ -126,3 +126,22 @@ export interface Localidad {
 	nombre: string;
 	departamento: string;
 }
+
+/**
+ * Pone el punto de miles mientras se escribe un monto: "350000" → "350.000".
+ * Acepta decimales con coma ("1500,5" → "1.500,5"), hasta 2.
+ */
+export function formatearMiles(texto: string): string {
+	const [entera = '', ...resto] = texto.replace(/[^\d,]/g, '').split(',');
+	const digitos = entera.replace(/^0+(?=\d)/, '');
+	const conPuntos = digitos.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+	return resto.length ? `${conPuntos},${resto.join('').slice(0, 2)}` : conPuntos;
+}
+
+/** Número de la base (350000.5) → texto del formulario ("350.000,5"). */
+export function montoATexto(n: unknown): string {
+	if (n === null || n === undefined || n === '') return '';
+	const num = Number(n);
+	if (!Number.isFinite(num)) return '';
+	return formatearMiles(String(num).replace('.', ','));
+}
